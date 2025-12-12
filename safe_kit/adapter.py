@@ -101,7 +101,7 @@ class Web3Adapter(EthAdapter):
     def sign_typed_data(self, data: dict[str, Any]) -> str:
         if not self.signer:
             raise ValueError("No signer available")
-        from eth_account.messages import encode_typed_data  # type: ignore[attr-defined]
+        from eth_account.messages import encode_typed_data
 
         signable_message = encode_typed_data(full_message=data)
         signed_message = self.signer.sign_message(signable_message)  # type: ignore[no-untyped-call]
