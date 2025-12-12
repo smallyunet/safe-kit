@@ -25,3 +25,6 @@ build:
 
 publish:
 	poetry publish
+
+generate-types:
+	python3 scripts/generate_types.py
