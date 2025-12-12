@@ -1,0 +1,55 @@
+import pytest
+from unittest.mock import MagicMock
+from safe_kit.factory import SafeFactory, SafeAccountConfig
+from safe_kit.adapter import Web3Adapter
+
+@pytest.fixture
+def mock_adapter():
+    adapter = MagicMock(spec=Web3Adapter)
+    adapter.get_signer_address.return_value = "0xSigner"
+    return adapter
+
+@pytest.fixture
+def mock_proxy_factory(mock_adapter):
+    contract = MagicMock()
+    mock_adapter.get_contract.return_value = contract
+    return contract
+
+@pytest.fixture
+def mock_safe_singleton(mock_adapter):
+    contract = MagicMock()
+    mock_adapter.get_safe_contract.return_value = contract
+    return contract
+
+@pytest.fixture
+def factory(mock_adapter, mock_proxy_factory, mock_safe_singleton):
+    return SafeFactory(
+        eth_adapter=mock_adapter,
+        safe_singleton_address="0xSingleton",
+        safe_proxy_factory_address="0xFactory"
+    )
+
+def test_predict_safe_address(factory, mock_proxy_factory, mock_safe_singleton):
+    mock_safe_singleton.encodeABI.return_value = b"initializer"
+    mock_proxy_factory.functions.createProxyWithNonce.return_value.call.return_value = "0xPredictedSafe"
+    
+    config = SafeAccountConfig(owners=["0xOwner1"], threshold=1)
+    address = factory.predict_safe_address(config)
+    
+    assert address == "0xPredictedSafe"
+    mock_safe_singleton.encodeABI.assert_called_once()
+    mock_proxy_factory.functions.createProxyWithNonce.assert_called_with(
+        "0xSingleton",
+        b"initializer",
+        0
+    )
+
+def test_deploy_safe(factory, mock_proxy_factory, mock_safe_singleton):
+    mock_safe_singleton.encodeABI.return_value = b"initializer"
+    mock_proxy_factory.functions.createProxyWithNonce.return_value.call.return_value = "0xPredictedSafe"
+    
+    config = SafeAccountConfig(owners=["0xOwner1"], threshold=1)
+    safe = factory.deploy_safe(config)
+    
+    assert safe.get_address() == "0xPredictedSafe"
+    mock_proxy_factory.functions.createProxyWithNonce.return_value.transact.assert_called_once()

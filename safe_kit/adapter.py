@@ -21,6 +21,10 @@ class EthAdapter(ABC):
         pass
 
     @abstractmethod
+    def get_contract(self, address: str, abi: list[Any]) -> Any:
+        pass
+
+    @abstractmethod
     def get_signer_address(self) -> Optional[str]:
 
 
@@ -51,6 +55,9 @@ class Web3Adapter(EthAdapter):
     def get_safe_contract(self, safe_address: str) -> Any:
         from safe_kit.abis import SAFE_ABI
         return self.web3.eth.contract(address=safe_address, abi=SAFE_ABI)
+
+    def get_contract(self, address: str, abi: list[Any]) -> Any:
+        return self.web3.eth.contract(address=address, abi=abi)
 
     def get_signer_address(self) -> Optional[str]:
 

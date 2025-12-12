@@ -1,6 +1,19 @@
 from typing import Optional, List, Any
 from pydantic import BaseModel, Field, ConfigDict
 
+class SafeAccountConfig(BaseModel):
+    """
+    Configuration for deploying a new Safe.
+    """
+    owners: List[str]
+    threshold: int
+    to: str = "0x0000000000000000000000000000000000000000"
+    data: str = "0x"
+    fallback_handler: str = "0x0000000000000000000000000000000000000000"
+    payment_token: str = "0x0000000000000000000000000000000000000000"
+    payment: int = 0
+    payment_receiver: str = "0x0000000000000000000000000000000000000000"
+
 class SafeTransactionData(BaseModel):
     """
     Model representing the data of a Safe transaction.
