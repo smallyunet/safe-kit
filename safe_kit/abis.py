@@ -1,4 +1,6 @@
-SAFE_ABI = [
+from typing import Any
+
+SAFE_ABI: list[dict[str, Any]] = [
     {
         "inputs": [
             {"internalType": "address", "name": "to", "type": "address"},
@@ -243,7 +245,7 @@ SAFE_ABI = [
     },
 ]
 
-SAFE_PROXY_FACTORY_ABI = [
+SAFE_PROXY_FACTORY_ABI: list[dict[str, Any]] = [
     {
         "inputs": [
             {"internalType": "address", "name": "_singleton", "type": "address"},
@@ -276,7 +278,7 @@ SAFE_PROXY_FACTORY_ABI = [
     },
 ]
 
-ERC20_ABI = [
+ERC20_ABI: list[dict[str, Any]] = [
     {
         "constant": False,
         "inputs": [
@@ -291,7 +293,7 @@ ERC20_ABI = [
     }
 ]
 
-ERC721_ABI = [
+ERC721_ABI: list[dict[str, Any]] = [
     {
         "inputs": [
             {"internalType": "address", "name": "from", "type": "address"},
