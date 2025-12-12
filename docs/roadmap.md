@@ -13,14 +13,14 @@ The ability to deploy new Safe contracts is implemented via `SafeFactory`.
 - [x] **Support for Safe Proxy Factory**: Integrate with the Safe Proxy Factory contract.
 
 ## 2. Safe Management (Owners & Thresholds)
-*Current Status: Read-only (Getters implemented)*
+*Current Status: Implemented*
 
-Currently, we can read owners and thresholds, but cannot change them.
+We can now create transactions to manage owners and thresholds.
 
-- [ ] **`addOwnerWithThreshold`**: Create a transaction to add a new owner and optionally update the threshold.
-- [ ] **`removeOwner`**: Create a transaction to remove an owner and update the threshold.
-- [ ] **`swapOwner`**: Create a transaction to replace an existing owner with a new one.
-- [ ] **`changeThreshold`**: Create a transaction to change the signature threshold.
+- [x] **`addOwnerWithThreshold`**: Create a transaction to add a new owner and optionally update the threshold.
+- [x] **`removeOwner`**: Create a transaction to remove an owner and update the threshold.
+- [x] **`swapOwner`**: Create a transaction to replace an existing owner with a new one.
+- [x] **`changeThreshold`**: Create a transaction to change the signature threshold.
 
 ## 3. Transaction Creation Helpers
 *Current Status: Basic `create_transaction` implemented*

@@ -47,3 +47,63 @@ def test_get_owners(safe, mock_contract):
     assert len(owners) == 2
     assert "0xOwner1" in owners
     mock_contract.functions.getOwners().call.assert_called_once()
+
+def test_create_add_owner_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xaddOwnerData"
+    
+    tx = safe.create_add_owner_transaction("0xNewOwner", 2)
+    
+    assert tx.data.to == "0xSafeAddress"
+    assert tx.data.data == "0xaddOwnerData"
+    assert tx.data.value == 0
+    assert tx.data.operation == 0
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="addOwnerWithThreshold",
+        args=["0xNewOwner", 2]
+    )
+
+def test_create_remove_owner_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xremoveOwnerData"
+    # Owners are ["0xOwner1", "0xOwner2"]
+    # Removing "0xOwner2", prev should be "0xOwner1"
+    
+    tx = safe.create_remove_owner_transaction("0xOwner2", 1)
+    
+    assert tx.data.to == "0xSafeAddress"
+    assert tx.data.data == "0xremoveOwnerData"
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="removeOwner",
+        args=["0xOwner1", "0xOwner2", 1]
+    )
+
+def test_create_remove_owner_transaction_first_owner(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xremoveOwnerData"
+    # Owners are ["0xOwner1", "0xOwner2"]
+    # Removing "0xOwner1", prev should be Sentinel
+    
+    tx = safe.create_remove_owner_transaction("0xOwner1", 1)
+    
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="removeOwner",
+        args=["0x0000000000000000000000000000000000000001", "0xOwner1", 1]
+    )
+
+def test_create_swap_owner_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xswapOwnerData"
+    
+    tx = safe.create_swap_owner_transaction("0xOwner2", "0xNewOwner")
+    
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="swapOwner",
+        args=["0xOwner1", "0xOwner2", "0xNewOwner"]
+    )
+
+def test_create_change_threshold_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xchangeThresholdData"
+    
+    tx = safe.create_change_threshold_transaction(3)
+    
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="changeThreshold",
+        args=[3]
+    )

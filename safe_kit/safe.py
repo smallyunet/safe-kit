@@ -111,4 +111,89 @@ class Safe:
         
         return tx_hash.hex()
 
+    def _get_previous_owner(self, owner: str) -> str:
+        owners = self.get_owners()
+        try:
+            index = owners.index(owner)
+        except ValueError:
+            raise ValueError(f"Address {owner} is not an owner")
+        
+        if index == 0:
+            return "0x0000000000000000000000000000000000000001" # Sentinel
+        return owners[index - 1]
+
+    def create_add_owner_transaction(self, owner: str, threshold: Optional[int] = None) -> SafeTransaction:
+        """
+        Creates a transaction to add a new owner to the Safe.
+        """
+        if threshold is None:
+            threshold = self.get_threshold()
+            
+        data = self.contract.encodeABI(
+            fn_name="addOwnerWithThreshold",
+            args=[owner, threshold]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_remove_owner_transaction(self, owner: str, threshold: Optional[int] = None) -> SafeTransaction:
+        """
+        Creates a transaction to remove an owner from the Safe.
+        """
+        if threshold is None:
+            threshold = self.get_threshold()
+            
+        prev_owner = self._get_previous_owner(owner)
+        
+        data = self.contract.encodeABI(
+            fn_name="removeOwner",
+            args=[prev_owner, owner, threshold]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_swap_owner_transaction(self, old_owner: str, new_owner: str) -> SafeTransaction:
+        """
+        Creates a transaction to replace an existing owner with a new one.
+        """
+        prev_owner = self._get_previous_owner(old_owner)
+        
+        data = self.contract.encodeABI(
+            fn_name="swapOwner",
+            args=[prev_owner, old_owner, new_owner]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_change_threshold_transaction(self, threshold: int) -> SafeTransaction:
+        """
+        Creates a transaction to change the threshold of the Safe.
+        """
+        data = self.contract.encodeABI(
+            fn_name="changeThreshold",
+            args=[threshold]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
 

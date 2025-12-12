@@ -74,6 +74,45 @@ SAFE_ABI = [
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "owner", "type": "address"},
+            {"internalType": "uint256", "name": "_threshold", "type": "uint256"}
+        ],
+        "name": "addOwnerWithThreshold",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "prevOwner", "type": "address"},
+            {"internalType": "address", "name": "owner", "type": "address"},
+            {"internalType": "uint256", "name": "_threshold", "type": "uint256"}
+        ],
+        "name": "removeOwner",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "prevOwner", "type": "address"},
+            {"internalType": "address", "name": "oldOwner", "type": "address"},
+            {"internalType": "address", "name": "newOwner", "type": "address"}
+        ],
+        "name": "swapOwner",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "uint256", "name": "_threshold", "type": "uint256"}],
+        "name": "changeThreshold",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ]
 
