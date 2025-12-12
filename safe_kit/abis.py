@@ -327,3 +327,13 @@ ERC721_ABI: list[dict[str, Any]] = [
         "type": "function",
     },
 ]
+
+MULTI_SEND_ABI: list[dict[str, Any]] = [
+    {
+        "inputs": [{"internalType": "bytes", "name": "transactions", "type": "bytes"}],
+        "name": "multiSend",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function",
+    }
+]

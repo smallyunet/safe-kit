@@ -1,5 +1,9 @@
 # Safe Kit (Python)
 
+[![PyPI version](https://img.shields.io/pypi/v/safe-kit.svg)](https://pypi.org/project/safe-kit/)
+[![Python versions](https://img.shields.io/pypi/pyversions/safe-kit.svg)](https://pypi.org/project/safe-kit/)
+[![License](https://img.shields.io/pypi/l/safe-kit.svg)](https://github.com/smallyunet/safe-kit/blob/main/LICENSE)
+
 A Python implementation of the [Safe Protocol Kit](https://github.com/safe-global/safe-core-sdk), designed to mirror the developer experience of the official Node.js SDK.
 
 ## Features

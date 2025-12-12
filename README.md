@@ -1,5 +1,9 @@
 # Safe Kit (Python)
 
+[![PyPI version](https://img.shields.io/pypi/v/safe-kit.svg)](https://pypi.org/project/safe-kit/)
+[![Python versions](https://img.shields.io/pypi/pyversions/safe-kit.svg)](https://pypi.org/project/safe-kit/)
+[![License](https://img.shields.io/pypi/l/safe-kit.svg)](https://github.com/smallyunet/safe-kit/blob/main/LICENSE)
+
 A Python implementation of the [Safe Protocol Kit](https://github.com/safe-global/safe-core-sdk), designed to mirror the developer experience of the official Node.js SDK.
 
 ## Features
@@ -8,14 +12,20 @@ A Python implementation of the [Safe Protocol Kit](https://github.com/safe-globa
 - **Type Safe**: Built with Pydantic and fully typed for robust development.
 - **Modern Stack**: Uses Web3.py, Eth-account, and Python 3.10+.
 - **Full Protocol Support**: Supports Safe deployment, transaction creation, signing (EIP-712 & eth_sign), and execution.
+- **Advanced Features**: MultiSend (batching), Safe Transaction Service integration, and more.
 
 ## Installation
 
-This project uses [Poetry](https://python-poetry.org/) for dependency management.
+You can install `safe-kit` via pip:
 
 ```bash
-# Install dependencies
-poetry install
+pip install safe-kit
+```
+
+Or with Poetry:
+
+```bash
+poetry add safe-kit
 ```
 
 ## Usage
@@ -64,7 +74,16 @@ tx_hash = safe.execute_transaction(signed_tx)
 print(f"Transaction executed: {tx_hash}")
 ```
 
+For more advanced usage (Batching, Transaction Service, Deployment), please refer to the [User Guide](https://smallyunet.github.io/safe-kit/user_guide/).
+
 ## Development
+
+### Setup
+
+```bash
+# Install dependencies
+poetry install
+```
 
 ### Running Tests
 

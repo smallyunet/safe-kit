@@ -99,3 +99,45 @@ class SafeTransaction(BaseModel):
         for owner in sorted_owners:
             signature_bytes += HexBytes(self.signatures[owner])
         return signature_bytes
+
+
+class SafeServiceInfo(BaseModel):
+    name: str
+    version: str
+    api_version: str
+    secure: bool
+    settings: dict[str, Any]
+
+
+class SafeMultisigTransactionResponse(BaseModel):
+    safe: str
+    to: str
+    value: str
+    data: str | None
+    operation: int
+    gas_token: str = Field(alias="gasToken")
+    safe_tx_gas: int = Field(alias="safeTxGas")
+    base_gas: int = Field(alias="baseGas")
+    gas_price: str = Field(alias="gasPrice")
+    refund_receiver: str = Field(alias="refundReceiver")
+    nonce: int
+    execution_date: str | None = Field(alias="executionDate")
+    submission_date: str = Field(alias="submissionDate")
+    modified: str
+    block_number: int | None = Field(alias="blockNumber")
+    transaction_hash: str | None = Field(alias="transactionHash")
+    safe_tx_hash: str = Field(alias="safeTxHash")
+    executor: str | None
+    is_executed: bool = Field(alias="isExecuted")
+    is_successful: bool | None = Field(alias="isSuccessful")
+    eth_gas_price: str | None = Field(alias="ethGasPrice")
+    max_fee_per_gas: str | None = Field(alias="maxFeePerGas")
+    max_priority_fee_per_gas: str | None = Field(alias="maxPriorityFeePerGas")
+    gas_used: int | None = Field(alias="gasUsed")
+    fee: str | None
+    origin: str | None
+    data_decoded: dict[str, Any] | None = Field(alias="dataDecoded")
+    confirmations_required: int = Field(alias="confirmationsRequired")
+    confirmations: list[dict[str, Any]] | None
+    trusted: bool
+    signatures: str | None

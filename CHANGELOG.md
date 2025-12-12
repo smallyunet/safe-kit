@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2025-12-12
+
+### Added
+- **MultiSend Support**: Added `MultiSend` class and `Safe.create_multi_send_transaction` to batch multiple transactions.
+- **Safe Transaction Service**: Added `SafeServiceClient` to interact with the Safe Transaction Service API (propose, confirm, get pending transactions).
+
+### Changed
+- Added `requests` dependency.
+
+## [0.0.2] - 2025-10-26
+
 ### Added
 - Initial implementation of `Safe` class.
 - `SafeFactory` for deploying new Safes.

@@ -12,6 +12,14 @@ class SafeTransactionError(SafeKitError):
         super().__init__(f"{error_code}: {message}" if error_code else message)
 
 
+class SafeServiceError(SafeKitError):
+    """Exception raised when the Safe Transaction Service returns an error"""
+
+    def __init__(self, message: str, status_code: int | None = None):
+        self.status_code = status_code
+        super().__init__(f"Status {status_code}: {message}" if status_code else message)
+
+
 SAFE_ERRORS = {
     "GS000": "Could not finish initialization",
     "GS001": "Threshold needs to be defined",
