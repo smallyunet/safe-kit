@@ -1,14 +1,16 @@
-from typing import Optional
-
 class SafeKitError(Exception):
     """Base exception for safe-kit"""
+
     pass
+
 
 class SafeTransactionError(SafeKitError):
     """Exception raised when a Safe transaction fails"""
-    def __init__(self, message: str, error_code: Optional[str] = None):
+
+    def __init__(self, message: str, error_code: str | None = None):
         self.error_code = error_code
         super().__init__(f"{error_code}: {message}" if error_code else message)
+
 
 SAFE_ERRORS = {
     "GS000": "Could not finish initialization",
@@ -30,17 +32,18 @@ SAFE_ERRORS = {
     "GS130": "New owner cannot be the null address",
 }
 
+
 def handle_contract_error(e: Exception) -> Exception:
     """
     Parses a web3 exception and returns a more readable SafeKitError if possible.
     """
     error_str = str(e)
-    
+
     # Check for Safe error codes in the exception message
     for code, message in SAFE_ERRORS.items():
         if code in error_str:
             return SafeTransactionError(message, error_code=code)
-            
+
     # If no specific Safe error is found, return the original exception
     # or wrap it in a generic SafeKitError
     return e

@@ -1,11 +1,14 @@
-from typing import Optional, List, Any
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class SafeAccountConfig(BaseModel):
     """
     Configuration for deploying a new Safe.
     """
-    owners: List[str]
+
+    owners: list[str]
     threshold: int
     to: str = "0x0000000000000000000000000000000000000000"
     data: str = "0x"
@@ -14,10 +17,12 @@ class SafeAccountConfig(BaseModel):
     payment: int = 0
     payment_receiver: str = "0x0000000000000000000000000000000000000000"
 
+
 class SafeTransactionData(BaseModel):
     """
     Model representing the data of a Safe transaction.
     """
+
     to: str
     value: int
     data: str
@@ -27,12 +32,13 @@ class SafeTransactionData(BaseModel):
     gas_price: int = 0
     gas_token: str = "0x0000000000000000000000000000000000000000"
     refund_receiver: str = "0x0000000000000000000000000000000000000000"
-    nonce: Optional[int] = None
+    nonce: int | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def get_eip712_data(self, chain_id: int, safe_address: str) -> dict[str, Any]:
         from hexbytes import HexBytes
+
         return {
             "types": {
                 "EIP712Domain": [
@@ -76,6 +82,7 @@ class SafeTransaction(BaseModel):
     """
     Model representing a complete Safe transaction including signatures.
     """
+
     data: SafeTransactionData
     signatures: dict[str, str] = Field(default_factory=dict)
 
@@ -85,10 +92,10 @@ class SafeTransaction(BaseModel):
     @property
     def sorted_signatures_bytes(self) -> bytes:
         from hexbytes import HexBytes
+
         # Sort by owner address
         sorted_owners = sorted(self.signatures.keys(), key=lambda x: int(x, 16))
         signature_bytes = b""
         for owner in sorted_owners:
             signature_bytes += HexBytes(self.signatures[owner])
         return signature_bytes
-
