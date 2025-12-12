@@ -54,4 +54,4 @@ Helper methods for creating common transactions are now available.
 ## 6. Infrastructure & DX
 - [ ] **Type Generation**: Auto-generate Python types from Safe ABIs.
 - [ ] **Chain ID Handling**: Better support for EIP-155 and chain-specific logic.
-- [ ] **Error Handling**: Parse EVM revert reasons into readable Python exceptions.
+- [x] **Error Handling**: Parse EVM revert reasons into readable Python exceptions.

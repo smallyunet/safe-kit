@@ -3,6 +3,7 @@ from safe_kit.adapter import EthAdapter
 from safe_kit.safe import Safe
 from safe_kit.types import SafeAccountConfig
 from safe_kit.abis import SAFE_PROXY_FACTORY_ABI
+from safe_kit.errors import handle_contract_error
 
 class SafeFactory:
     """
@@ -61,11 +62,14 @@ class SafeFactory:
 
         initializer = self._get_initializer_data(config)
         
-        self.proxy_factory_contract.functions.createProxyWithNonce(
-            self.safe_singleton_address,
-            initializer,
-            salt_nonce
-        ).transact({"from": signer})
+        try:
+            self.proxy_factory_contract.functions.createProxyWithNonce(
+                self.safe_singleton_address,
+                initializer,
+                salt_nonce
+            ).transact({"from": signer})
+        except Exception as e:
+            raise handle_contract_error(e)
         
         safe_address = self.predict_safe_address(config, salt_nonce)
         return Safe(self.eth_adapter, safe_address)

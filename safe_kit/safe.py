@@ -1,6 +1,8 @@
 from typing import Optional, List, Any
+from hexbytes import HexBytes
 from safe_kit.types import SafeTransaction, SafeTransactionData
 from safe_kit.adapter import EthAdapter
+from safe_kit.errors import handle_contract_error
 
 class Safe:
     """
@@ -90,7 +92,6 @@ class Safe:
             # Adjust v for eth_sign: v += 4
             # Signature is r(32) + s(32) + v(1)
             # We need to parse it, adjust v, and reconstruct
-            from hexbytes import HexBytes
             sig_bytes = HexBytes(signature)
             r = sig_bytes[:32]
             s = sig_bytes[32:64]
@@ -107,7 +108,6 @@ class Safe:
         """
         Returns the hash of the Safe transaction.
         """
-        from hexbytes import HexBytes
         
         return self.contract.functions.getTransactionHash(
             safe_transaction.data.to,
@@ -126,11 +126,13 @@ class Safe:
         """
         Approves a hash on-chain.
         """
-        from hexbytes import HexBytes
-        tx_hash = self.contract.functions.approveHash(HexBytes(hash_to_approve)).transact({
-            "from": self.eth_adapter.get_signer_address()
-        })
-        return tx_hash.hex()
+        try:
+            tx_hash = self.contract.functions.approveHash(HexBytes(hash_to_approve)).transact({
+                "from": self.eth_adapter.get_signer_address()
+            })
+            return tx_hash.hex()
+        except Exception as e:
+            raise handle_contract_error(e)
 
     def execute_transaction(self, safe_transaction: SafeTransaction) -> str:
         """
@@ -141,20 +143,23 @@ class Safe:
         # Sort signatures
         sorted_signatures = safe_transaction.sorted_signatures_bytes
         
-        tx_hash = self.contract.functions.execTransaction(
-            safe_transaction.data.to,
-            safe_transaction.data.value,
-            HexBytes(safe_transaction.data.data),
-            safe_transaction.data.operation,
-            safe_transaction.data.safe_tx_gas,
-            safe_transaction.data.base_gas,
-            safe_transaction.data.gas_price,
-            safe_transaction.data.gas_token,
-            safe_transaction.data.refund_receiver,
-            sorted_signatures
-        ).transact({"from": self.eth_adapter.get_signer_address()})
-        
-        return tx_hash.hex()
+        try:
+            tx_hash = self.contract.functions.execTransaction(
+                safe_transaction.data.to,
+                safe_transaction.data.value,
+                HexBytes(safe_transaction.data.data),
+                safe_transaction.data.operation,
+                safe_transaction.data.safe_tx_gas,
+                safe_transaction.data.base_gas,
+                safe_transaction.data.gas_price,
+                safe_transaction.data.gas_token,
+                safe_transaction.data.refund_receiver,
+                sorted_signatures
+            ).transact({"from": self.eth_adapter.get_signer_address()})
+            
+            return tx_hash.hex()
+        except Exception as e:
+            raise handle_contract_error(e)
 
     def _get_previous_owner(self, owner: str) -> str:
         owners = self.get_owners()
