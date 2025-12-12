@@ -71,6 +71,7 @@ class SafeFactory:
             raise ValueError("No signer configured in the adapter")
 
         initializer = self._get_initializer_data(config)
+        safe_address = self.predict_safe_address(config, salt_nonce)
 
         try:
             self.proxy_factory_contract.functions.createProxyWithNonce(
@@ -79,5 +80,4 @@ class SafeFactory:
         except Exception as e:
             raise handle_contract_error(e) from e
 
-        safe_address = self.predict_safe_address(config, salt_nonce)
         return Safe(self.eth_adapter, safe_address)
