@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from safe_kit.safe import Safe
 from safe_kit.adapter import Web3Adapter
+from safe_kit.types import SafeTransactionData
 
 @pytest.fixture
 def mock_adapter():
@@ -291,3 +292,27 @@ def test_create_set_fallback_handler_transaction(safe, mock_contract):
         fn_name="setFallbackHandler",
         args=["0xHandler"]
     )
+
+def test_sign_transaction_eth_sign(safe, mock_adapter, mock_contract):
+    # Mock transaction data
+    tx_data = SafeTransactionData(to="0xTo", value=0, data="0x", operation=0, nonce=0)
+    safe_tx = safe.create_transaction(tx_data)
+    
+    # Mock getTransactionHash
+    # Return bytes directly as web3.py call() would return bytes for bytes32
+    mock_contract.functions.getTransactionHash.return_value.call.return_value = b'\x01' * 32
+    
+    # Mock sign_message return value (65 bytes hex)
+    # r(32) + s(32) + v(1)
+    # v=27 (0x1b)
+    mock_adapter.sign_message.return_value = "00" * 32 + "00" * 32 + "1b"
+    
+    signed_tx = safe.sign_transaction(safe_tx, method="eth_sign")
+    
+    # Check if sign_message was called
+    mock_adapter.sign_message.assert_called()
+    
+    # Check if signature was added and modified
+    # v should be 27 + 4 = 31 (0x1f)
+    expected_sig = "00" * 32 + "00" * 32 + "1f"
+    assert signed_tx.signatures["0xSigner"] == expected_sig

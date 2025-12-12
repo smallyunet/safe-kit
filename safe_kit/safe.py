@@ -138,8 +138,6 @@ class Safe:
         """
         Executes a Safe transaction.
         """
-        from hexbytes import HexBytes
-        
         # Sort signatures
         sorted_signatures = safe_transaction.sorted_signatures_bytes
         
@@ -379,8 +377,6 @@ class Safe:
         """
         Estimates the gas required for a Safe transaction.
         """
-        from hexbytes import HexBytes
-        
         return self.contract.functions.requiredTxGas(
             safe_transaction.data.to,
             safe_transaction.data.value,
@@ -399,8 +395,6 @@ class Safe:
         Checks if the signatures on the transaction are valid.
         Raises an error if signatures are invalid.
         """
-        from hexbytes import HexBytes
-        
         tx_hash = self.get_transaction_hash(safe_transaction)
         # Convert hex string hash to bytes
         tx_hash_bytes = HexBytes(tx_hash)
