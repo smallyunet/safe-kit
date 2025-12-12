@@ -18,6 +18,43 @@ SAFE_ABI = [
         "type": "function"
     },
     {
+        "inputs": [{"internalType": "bytes32", "name": "hashToApprove", "type": "bytes32"}],
+        "name": "approveHash",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "to", "type": "address"},
+            {"internalType": "uint256", "name": "value", "type": "uint256"},
+            {"internalType": "bytes", "name": "data", "type": "bytes"},
+            {"internalType": "enum Enum.Operation", "name": "operation", "type": "uint8"}
+        ],
+        "name": "getTransactionHash",
+        "outputs": [{"internalType": "bytes32", "name": "", "type": "bytes32"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "to", "type": "address"},
+            {"internalType": "uint256", "name": "value", "type": "uint256"},
+            {"internalType": "bytes", "name": "data", "type": "bytes"},
+            {"internalType": "enum Enum.Operation", "name": "operation", "type": "uint8"},
+            {"internalType": "uint256", "name": "safeTxGas", "type": "uint256"},
+            {"internalType": "uint256", "name": "baseGas", "type": "uint256"},
+            {"internalType": "uint256", "name": "gasPrice", "type": "uint256"},
+            {"internalType": "address", "name": "gasToken", "type": "address"},
+            {"internalType": "address payable", "name": "refundReceiver", "type": "address"},
+            {"internalType": "bytes", "name": "signatures", "type": "bytes"}
+        ],
+        "name": "requiredTxGas",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "nonce",
         "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],

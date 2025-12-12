@@ -70,22 +70,67 @@ class Safe:
             
         return SafeTransaction(data=transaction_data)
 
-    def sign_transaction(self, safe_transaction: SafeTransaction) -> SafeTransaction:
-
+    def sign_transaction(self, safe_transaction: SafeTransaction, method: str = "eth_sign_typed_data") -> SafeTransaction:
         """
         Signs a Safe transaction with the current signer.
+        Supported methods: "eth_sign_typed_data" (EIP-712), "eth_sign" (legacy).
         """
         signer_address = self.eth_adapter.get_signer_address()
         if not signer_address:
             raise ValueError("No signer configured in the adapter")
 
         chain_id = self.eth_adapter.get_chain_id()
-        eip712_data = safe_transaction.data.get_eip712_data(chain_id, self.safe_address)
         
-        signature = self.eth_adapter.sign_typed_data(eip712_data)
+        if method == "eth_sign_typed_data":
+            eip712_data = safe_transaction.data.get_eip712_data(chain_id, self.safe_address)
+            signature = self.eth_adapter.sign_typed_data(eip712_data)
+        elif method == "eth_sign":
+            tx_hash = self.get_transaction_hash(safe_transaction)
+            signature = self.eth_adapter.sign_message(tx_hash)
+            # Adjust v for eth_sign: v += 4
+            # Signature is r(32) + s(32) + v(1)
+            # We need to parse it, adjust v, and reconstruct
+            from hexbytes import HexBytes
+            sig_bytes = HexBytes(signature)
+            r = sig_bytes[:32]
+            s = sig_bytes[32:64]
+            v = sig_bytes[64]
+            v += 4
+            signature = (r + s + bytes([v])).hex()
+        else:
+            raise ValueError(f"Unsupported signing method: {method}")
         
         safe_transaction.add_signature(signer_address, signature)
         return safe_transaction
+
+    def get_transaction_hash(self, safe_transaction: SafeTransaction) -> str:
+        """
+        Returns the hash of the Safe transaction.
+        """
+        from hexbytes import HexBytes
+        
+        return self.contract.functions.getTransactionHash(
+            safe_transaction.data.to,
+            safe_transaction.data.value,
+            HexBytes(safe_transaction.data.data),
+            safe_transaction.data.operation,
+            safe_transaction.data.safe_tx_gas,
+            safe_transaction.data.base_gas,
+            safe_transaction.data.gas_price,
+            safe_transaction.data.gas_token,
+            safe_transaction.data.refund_receiver,
+            safe_transaction.data.nonce
+        ).call().hex()
+
+    def approve_hash(self, hash_to_approve: str) -> str:
+        """
+        Approves a hash on-chain.
+        """
+        from hexbytes import HexBytes
+        tx_hash = self.contract.functions.approveHash(HexBytes(hash_to_approve)).transact({
+            "from": self.eth_adapter.get_signer_address()
+        })
+        return tx_hash.hex()
 
     def execute_transaction(self, safe_transaction: SafeTransaction) -> str:
         """

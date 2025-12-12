@@ -98,6 +98,38 @@ def test_create_swap_owner_transaction(safe, mock_contract):
         args=["0xOwner1", "0xOwner2", "0xNewOwner"]
     )
 
+def test_get_transaction_hash(safe, mock_contract):
+    mock_contract.functions.getTransactionHash.return_value.call.return_value = b"hash"
+    
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+    tx_hash = safe.get_transaction_hash(tx)
+    
+    assert tx_hash == "68617368" # hex of b"hash"
+    mock_contract.functions.getTransactionHash.assert_called_once()
+
+def test_approve_hash(safe, mock_contract, mock_adapter):
+    mock_contract.functions.approveHash.return_value.transact.return_value = b"tx_hash"
+    
+    # Use a valid hex string
+    tx_hash = safe.approve_hash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
+    
+    assert tx_hash == "74785f68617368" # hex of b"tx_hash"
+    mock_contract.functions.approveHash.assert_called_once()
+
+def test_sign_transaction_eth_sign(safe, mock_adapter, mock_contract):
+    mock_contract.functions.getTransactionHash.return_value.call.return_value = b"hash"
+    # Mock signature: r(32) + s(32) + v(1)
+    # v=27 (0x1b) -> +4 -> 31 (0x1f)
+    mock_signature = b"\x00" * 64 + b"\x1b"
+    mock_adapter.sign_message.return_value = mock_signature
+    
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+    signed_tx = safe.sign_transaction(tx, method="eth_sign")
+    
+    expected_signature = (b"\x00" * 64 + b"\x1f").hex()
+    assert signed_tx.signatures["0xSigner"] == expected_signature
+    mock_adapter.sign_message.assert_called_with("68617368")
+
 def test_create_change_threshold_transaction(safe, mock_contract):
     mock_contract.encodeABI.return_value = "0xchangeThresholdData"
     

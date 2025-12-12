@@ -36,10 +36,10 @@ Helper methods for creating common transactions are now available.
 - [x] **`createRejectionTx`**: Helper to create a transaction with the same nonce (to cancel a pending tx).
 
 ## 4. Signatures & Execution
-*Current Status: EIP-712 Signing implemented*
+*Current Status: Implemented*
 
-- [ ] **`approveHash`**: Support for on-chain transaction approval (for smart contract wallets as owners).
-- [ ] **`eth_sign` Support**: Support for `eth_sign` (legacy) signatures for hardware wallets that don't support EIP-712.
+- [x] **`approveHash`**: Support for on-chain transaction approval (for smart contract wallets as owners).
+- [x] **`eth_sign` Support**: Support for `eth_sign` (legacy) signatures for hardware wallets that don't support EIP-712.
 - [ ] **Signature Validation**: Utilities to verify signatures off-chain.
 - [ ] **Gas Estimation**: `estimateTxGas` to automatically calculate `safeTxGas`.
 
