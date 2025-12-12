@@ -1,0 +1,52 @@
+site_name: Safe Kit
+site_description: A Python implementation of the Safe Protocol Kit
+site_url: https://github.com/smallyunet/safe-kit
+repo_url: https://github.com/smallyunet/safe-kit
+repo_name: smallyunet/safe-kit
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_root_heading: true
+            show_source: true
+
+nav:
+  - Home: index.md
+  - User Guide: user_guide.md
+  - API Reference:
+      - Safe: api/safe.md
+      - Adapter: api/adapter.md
+      - Factory: api/factory.md
+      - Types: api/types.md
+  - Roadmap: roadmap.md

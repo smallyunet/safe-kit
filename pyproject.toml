@@ -32,6 +32,9 @@ pytest = "^7.0.0"
 ruff = "^0.1.0"
 mypy = "^1.0.0"
 types-requests = "^2.0.0"
+mkdocs = "^1.5.0"
+mkdocs-material = "^9.5.0"
+mkdocstrings = {extras = ["python"], version = "^1.0.0"}
 
 [build-system]
 requires = ["poetry-core"]
