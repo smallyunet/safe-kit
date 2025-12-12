@@ -93,9 +93,9 @@ class Web3Adapter(EthAdapter):
     def sign_typed_data(self, data: dict[str, Any]) -> str:
         if not self.signer:
             raise ValueError("No signer available")
-        from eth_account.messages import encode_structured_data
+        from eth_account.messages import encode_typed_data  # type: ignore[attr-defined]
 
-        signable_message = encode_structured_data(primitive=data)
+        signable_message = encode_typed_data(full_message=data)
         signed_message = self.signer.sign_message(signable_message)  # type: ignore[no-untyped-call]
         return str(signed_message.signature.hex())
 
