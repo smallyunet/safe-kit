@@ -198,6 +198,20 @@ SAFE_ABI = [
         "outputs": [],
         "stateMutability": "view",
         "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "guard", "type": "address"}],
+        "name": "setGuard",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "handler", "type": "address"}],
+        "name": "setFallbackHandler",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ]
 

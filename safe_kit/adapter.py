@@ -38,6 +38,10 @@ class EthAdapter(ABC):
     def sign_typed_data(self, data: dict[str, Any]) -> str:
         pass
 
+    @abstractmethod
+    def get_storage_at(self, address: str, position: int) -> bytes:
+        pass
+
 class Web3Adapter(EthAdapter):
     """
     Web3.py implementation of the EthAdapter.
@@ -83,5 +87,8 @@ class Web3Adapter(EthAdapter):
         signable_message = encode_structured_data(primitive=data)
         signed_message = self.signer.sign_message(signable_message)
         return signed_message.signature.hex()
+
+    def get_storage_at(self, address: str, position: int) -> bytes:
+        return self.web3.eth.get_storage_at(address, position)
 
 

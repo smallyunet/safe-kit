@@ -245,3 +245,49 @@ def test_check_signatures(safe, mock_contract):
     safe.check_signatures(tx)
     
     mock_contract.functions.checkSignatures.assert_called_once()
+
+def test_get_guard(safe, mock_adapter):
+    # Mock storage return value (padded address)
+    mock_adapter.get_storage_at.return_value = b"\x00" * 12 + b"\x12" * 20
+    
+    guard = safe.get_guard()
+    
+    assert guard == "0x" + "12" * 20
+    mock_adapter.get_storage_at.assert_called_with(
+        "0xSafeAddress",
+        0x4a204f620c8c5ccdca3fd54d003b6d13435454a733a569f8e4a6426ea62bf7a0
+    )
+
+def test_create_set_guard_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xsetGuardData"
+    
+    tx = safe.create_set_guard_transaction("0xGuard")
+    
+    assert tx.data.data == "0xsetGuardData"
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="setGuard",
+        args=["0xGuard"]
+    )
+
+def test_get_fallback_handler(safe, mock_adapter):
+    # Mock storage return value (padded address)
+    mock_adapter.get_storage_at.return_value = b"\x00" * 12 + b"\x34" * 20
+    
+    handler = safe.get_fallback_handler()
+    
+    assert handler == "0x" + "34" * 20
+    mock_adapter.get_storage_at.assert_called_with(
+        "0xSafeAddress",
+        0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5
+    )
+
+def test_create_set_fallback_handler_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xsetFallbackHandlerData"
+    
+    tx = safe.create_set_fallback_handler_transaction("0xHandler")
+    
+    assert tx.data.data == "0xsetFallbackHandlerData"
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="setFallbackHandler",
+        args=["0xHandler"]
+    )

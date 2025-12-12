@@ -44,11 +44,11 @@ Helper methods for creating common transactions are now available.
 - [x] **Gas Estimation**: `estimateTxGas` to automatically calculate `safeTxGas` (via `requiredTxGas`).
 
 ## 5. Advanced Features
-*Current Status: Missing*
+*Current Status: Implemented*
 
-- [ ] **Modules**: `getModules`, `isModuleEnabled`.
-- [ ] **Guards**: `getGuard`, `setGuardTx`.
-- [ ] **Fallback Handler**: `getFallbackHandler`, `setFallbackHandlerTx`.
+- [x] **Modules**: `getModules`, `isModuleEnabled` (Implemented in Section 3).
+- [x] **Guards**: `getGuard`, `setGuardTx`.
+- [x] **Fallback Handler**: `getFallbackHandler`, `setFallbackHandlerTx`.
 - [ ] **Multi-version Support**: Ensure compatibility with Safe contracts v1.0.0, v1.1.1, v1.2.0, v1.3.0, v1.4.1.
 
 ## 6. Infrastructure & DX
