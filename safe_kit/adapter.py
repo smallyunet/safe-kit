@@ -42,6 +42,14 @@ class EthAdapter(ABC):
     def get_storage_at(self, address: str, position: int) -> bytes:
         pass
 
+    @abstractmethod
+    def get_code(self, address: str) -> bytes:
+        pass
+
+    @abstractmethod
+    def get_transaction_count(self, address: str) -> int:
+        pass
+
 
 class Web3Adapter(EthAdapter):
     """
@@ -102,4 +110,12 @@ class Web3Adapter(EthAdapter):
     def get_storage_at(self, address: str, position: int) -> bytes:
         return self.web3.eth.get_storage_at(
             self.web3.to_checksum_address(address), position
+        )
+
+    def get_code(self, address: str) -> bytes:
+        return self.web3.eth.get_code(self.web3.to_checksum_address(address))
+
+    def get_transaction_count(self, address: str) -> int:
+        return self.web3.eth.get_transaction_count(
+            self.web3.to_checksum_address(address)
         )
