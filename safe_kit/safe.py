@@ -49,6 +49,18 @@ class Safe:
         """
         return self.contract.functions.getOwners().call()
 
+    def get_version(self) -> str:
+        """
+        Returns the version of the Safe contract.
+        """
+        return self.contract.functions.VERSION().call()
+
+    def is_owner(self, address: str) -> bool:
+        """
+        Checks if an address is an owner of the Safe.
+        """
+        return self.contract.functions.isOwner(address).call()
+
     def create_transaction(self, transaction_data: SafeTransactionData) -> SafeTransaction:
         """
         Creates a Safe transaction ready to be signed.
