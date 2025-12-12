@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "safe-kit"
-version = "0.1.0"
+version = "0.0.1"
 description = "Python implementation of the Safe Protocol Kit"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["smallyu <smallyu@users.noreply.github.com>"]
 readme = "README.md"
+license = "MIT"
+repository = "https://github.com/smallyunet/safe-kit"
 packages = [{include = "safe_kit"}]
 
 [tool.poetry.dependencies]
