@@ -1,6 +1,6 @@
-from hexbytes import HexBytes
 from safe_kit.multisend import MultiSend
 from safe_kit.types import SafeTransactionData
+
 
 def test_encode_transactions():
     tx1 = SafeTransactionData(

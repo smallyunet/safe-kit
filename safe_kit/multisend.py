@@ -1,5 +1,7 @@
 from hexbytes import HexBytes
+
 from safe_kit.types import SafeTransactionData
+
 
 class MultiSend:
     """
@@ -13,7 +15,8 @@ class MultiSend:
         compatible with the MultiSend contract.
         
         Format:
-        operation (1 byte) + to (20 bytes) + value (32 bytes) + data_length (32 bytes) + data (bytes)
+        operation (1 byte) + to (20 bytes) + value (32 bytes) +
+        data_length (32 bytes) + data (bytes)
         """
         encoded_data = b""
         for tx in transactions:

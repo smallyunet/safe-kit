@@ -1,7 +1,9 @@
 import pytest
 import requests_mock
+
 from safe_kit.service import SafeServiceClient
 from safe_kit.types import SafeTransactionData
+
 
 @pytest.fixture
 def service():

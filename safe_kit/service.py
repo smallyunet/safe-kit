@@ -1,7 +1,14 @@
+from typing import Any
+
 import requests
-from typing import Any, Optional
-from safe_kit.types import SafeTransactionData, SafeServiceInfo, SafeMultisigTransactionResponse
+
 from safe_kit.errors import SafeServiceError
+from safe_kit.types import (
+    SafeMultisigTransactionResponse,
+    SafeServiceInfo,
+    SafeTransactionData,
+)
+
 
 class SafeServiceClient:
     """
@@ -37,7 +44,7 @@ class SafeServiceClient:
         safe_tx_hash: str,
         sender_address: str,
         signature: str,
-        origin: Optional[str] = None,
+        origin: str | None = None,
     ) -> None:
         """
         Proposes a transaction to the Safe Transaction Service.
@@ -65,7 +72,7 @@ class SafeServiceClient:
         self._handle_response(response)
 
     def get_pending_transactions(
-        self, safe_address: str, current_nonce: Optional[int] = None
+        self, safe_address: str, current_nonce: int | None = None
     ) -> list[SafeMultisigTransactionResponse]:
         """
         Returns the list of pending transactions for a Safe.
@@ -84,7 +91,9 @@ class SafeServiceClient:
         """
         Adds a confirmation (signature) to a pending transaction.
         """
-        url = f"{self.service_url}/v1/multisig-transactions/{safe_tx_hash}/confirmations/"
+        url = (
+            f"{self.service_url}/v1/multisig-transactions/{safe_tx_hash}/confirmations/"
+        )
         payload = {"signature": signature}
         
         response = requests.post(url, json=payload)

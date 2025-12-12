@@ -1,8 +1,8 @@
-import os
 import pytest
-from web3 import Web3
 from eth_account import Account
-from safe_kit import Safe, SafeFactory, Web3Adapter, SafeAccountConfig, SafeTransactionData
+from web3 import Web3
+
+from safe_kit import SafeAccountConfig, SafeFactory, Web3Adapter
 
 # Safe v1.3.0 Contracts on Mainnet
 SAFE_SINGLETON_ADDRESS = "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
@@ -21,7 +21,10 @@ def web3():
     """
     w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
     if not w3.is_connected():
-        pytest.skip("Local Anvil node not running. Run 'anvil --fork-url <RPC_URL>' to enable E2E tests.")
+        pytest.skip(
+            "Local Anvil node not running. "
+            "Run 'anvil --fork-url <RPC_URL>' to enable E2E tests."
+        )
     return w3
 
 @pytest.fixture(scope="module")
@@ -107,11 +110,13 @@ def test_full_safe_lifecycle(web3, adapter):
     
     print(f"Safe Final Balance: {web3.from_wei(final_balance, 'ether')} ETH")
     
-    # Check Safe balance decreased (amount + gas cost, but gas is paid by executor/owner, 
-    # here the safe pays 0 gas for the execution itself unless refund is set up, 
+    # Check Safe balance decreased (amount + gas cost,
+    # but gas is paid by executor/owner,
+    # here the safe pays 0 gas for the execution itself unless refund is set up,
     # but the value transfer definitely reduces balance)
     assert final_balance == initial_balance - transfer_amount
-    # Check recipient received funds (assuming they started with 10000 ETH or 0, checking delta is safer)
+    # Check recipient received funds (assuming they started with 10000 ETH or 0,
+    # checking delta is safer)
     # But for Anvil account 1, let's just check it has at least the amount.
     assert recipient_balance >= transfer_amount
     

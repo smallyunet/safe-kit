@@ -4,8 +4,8 @@ from hexbytes import HexBytes
 
 from safe_kit.adapter import EthAdapter
 from safe_kit.errors import handle_contract_error
-from safe_kit.types import SafeTransaction, SafeTransactionData
 from safe_kit.multisend import MultiSend
+from safe_kit.types import SafeTransaction, SafeTransactionData
 
 
 class Safe:
@@ -382,7 +382,8 @@ class Safe:
 
         data = multi_send_contract.encodeABI(fn_name="multiSend", args=[encoded_txs])
 
-        # MultiSend transactions are DelegateCalls (operation=1) to the MultiSend contract
+        # MultiSend transactions are DelegateCalls (operation=1)
+        # to the MultiSend contract
         return self.create_transaction(
             SafeTransactionData(
                 to=multi_send_address,
