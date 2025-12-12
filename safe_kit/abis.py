@@ -113,6 +113,43 @@ SAFE_ABI = [
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "module", "type": "address"}],
+        "name": "enableModule",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "prevModule", "type": "address"},
+            {"internalType": "address", "name": "module", "type": "address"}
+        ],
+        "name": "disableModule",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "start", "type": "address"},
+            {"internalType": "uint256", "name": "pageSize", "type": "uint256"}
+        ],
+        "name": "getModulesPaginated",
+        "outputs": [
+            {"internalType": "address[]", "name": "array", "type": "address[]"},
+            {"internalType": "address", "name": "next", "type": "address"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "module", "type": "address"}],
+        "name": "isModuleEnabled",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "view",
+        "type": "function"
     }
 ]
 
@@ -136,5 +173,45 @@ SAFE_PROXY_FACTORY_ABI = [
         ],
         "name": "ProxyCreation",
         "type": "event"
+    }
+]
+
+ERC20_ABI = [
+    {
+        "constant": False,
+        "inputs": [
+            {"name": "_to", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+        ],
+        "name": "transfer",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": False,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
+
+ERC721_ABI = [
+    {
+        "inputs": [
+            {"internalType": "address", "name": "from", "type": "address"},
+            {"internalType": "address", "name": "to", "type": "address"},
+            {"internalType": "uint256", "name": "tokenId", "type": "uint256"}
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "from", "type": "address"},
+            {"internalType": "address", "name": "to", "type": "address"},
+            {"internalType": "uint256", "name": "tokenId", "type": "uint256"}
+        ],
+        "name": "transferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ]

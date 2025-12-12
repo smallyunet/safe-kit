@@ -107,3 +107,91 @@ def test_create_change_threshold_transaction(safe, mock_contract):
         fn_name="changeThreshold",
         args=[3]
     )
+
+def test_get_modules(safe, mock_contract):
+    # Mock pagination: first call returns [mod1], next=mod1; second call returns [mod2], next=sentinel
+    mock_contract.functions.getModulesPaginated.side_effect = [
+        MagicMock(call=MagicMock(return_value=(["0xMod1"], "0xMod1"))),
+        MagicMock(call=MagicMock(return_value=(["0xMod2"], "0x0000000000000000000000000000000000000001")))
+    ]
+    
+    modules = safe.get_modules()
+    
+    assert modules == ["0xMod1", "0xMod2"]
+    assert mock_contract.functions.getModulesPaginated.call_count == 2
+
+def test_is_module_enabled(safe, mock_contract):
+    mock_contract.functions.isModuleEnabled("0xMod1").call.return_value = True
+    assert safe.is_module_enabled("0xMod1") is True
+
+def test_create_enable_module_transaction(safe, mock_contract):
+    mock_contract.encodeABI.return_value = "0xenableModuleData"
+    
+    tx = safe.create_enable_module_transaction("0xMod1")
+    
+    assert tx.data.data == "0xenableModuleData"
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="enableModule",
+        args=["0xMod1"]
+    )
+
+def test_create_disable_module_transaction(safe, mock_contract):
+    # Mock get_modules to return ["0xMod1", "0xMod2"]
+    # We want to disable "0xMod2", so prev should be "0xMod1"
+    mock_contract.functions.getModulesPaginated.side_effect = [
+        MagicMock(call=MagicMock(return_value=(["0xMod1", "0xMod2"], "0x0000000000000000000000000000000000000001")))
+    ]
+    mock_contract.encodeABI.return_value = "0xdisableModuleData"
+    
+    tx = safe.create_disable_module_transaction("0xMod2")
+    
+    assert tx.data.data == "0xdisableModuleData"
+    mock_contract.encodeABI.assert_called_with(
+        fn_name="disableModule",
+        args=["0xMod1", "0xMod2"]
+    )
+
+def test_create_erc20_transfer_transaction(safe, mock_adapter):
+    mock_token = MagicMock()
+    mock_token.encodeABI.return_value = "0xerc20TransferData"
+    mock_adapter.get_contract.return_value = mock_token
+    
+    tx = safe.create_erc20_transfer_transaction("0xToken", "0xReceiver", 100)
+    
+    assert tx.data.to == "0xToken"
+    assert tx.data.data == "0xerc20TransferData"
+    assert tx.data.value == 0
+    mock_token.encodeABI.assert_called_with(
+        fn_name="transfer",
+        args=["0xReceiver", 100]
+    )
+
+def test_create_erc721_transfer_transaction(safe, mock_adapter):
+    mock_token = MagicMock()
+    mock_token.encodeABI.return_value = "0xerc721TransferData"
+    mock_adapter.get_contract.return_value = mock_token
+    
+    tx = safe.create_erc721_transfer_transaction("0xNFT", "0xReceiver", 1)
+    
+    assert tx.data.to == "0xNFT"
+    assert tx.data.data == "0xerc721TransferData"
+    assert tx.data.value == 0
+    mock_token.encodeABI.assert_called_with(
+        fn_name="safeTransferFrom",
+        args=["0xSafeAddress", "0xReceiver", 1]
+    )
+
+def test_create_native_transfer_transaction(safe):
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+    
+    assert tx.data.to == "0xReceiver"
+    assert tx.data.value == 100
+    assert tx.data.data == "0x"
+
+def test_create_rejection_transaction(safe):
+    tx = safe.create_rejection_transaction(5)
+    
+    assert tx.data.to == "0xSafeAddress"
+    assert tx.data.value == 0
+    assert tx.data.data == "0x"
+    assert tx.data.nonce == 5

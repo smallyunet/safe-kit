@@ -196,4 +196,133 @@ class Safe:
             operation=0
         ))
 
+    def get_modules(self) -> List[str]:
+        """
+        Returns the modules enabled on the Safe.
+        """
+        # Sentinel address for modules
+        start = "0x0000000000000000000000000000000000000001"
+        page_size = 10
+        modules = []
+        
+        while True:
+            array, next_module = self.contract.functions.getModulesPaginated(start, page_size).call()
+            modules.extend(array)
+            
+            if next_module == "0x0000000000000000000000000000000000000001" or next_module == "0x0000000000000000000000000000000000000000":
+                break
+            start = next_module
+            
+        return modules
+
+    def is_module_enabled(self, module_address: str) -> bool:
+        """
+        Checks if a module is enabled on the Safe.
+        """
+        return self.contract.functions.isModuleEnabled(module_address).call()
+
+    def create_enable_module_transaction(self, module_address: str) -> SafeTransaction:
+        """
+        Creates a transaction to enable a Safe module.
+        """
+        data = self.contract.encodeABI(
+            fn_name="enableModule",
+            args=[module_address]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_disable_module_transaction(self, module_address: str) -> SafeTransaction:
+        """
+        Creates a transaction to disable a Safe module.
+        """
+        modules = self.get_modules()
+        try:
+            index = modules.index(module_address)
+        except ValueError:
+            raise ValueError(f"Module {module_address} is not enabled")
+            
+        if index == 0:
+            prev_module = "0x0000000000000000000000000000000000000001"
+        else:
+            prev_module = modules[index - 1]
+            
+        data = self.contract.encodeABI(
+            fn_name="disableModule",
+            args=[prev_module, module_address]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_erc20_transfer_transaction(self, token_address: str, to: str, amount: int) -> SafeTransaction:
+        """
+        Creates a transaction to transfer ERC20 tokens.
+        """
+        from safe_kit.abis import ERC20_ABI
+        token_contract = self.eth_adapter.get_contract(token_address, ERC20_ABI)
+        
+        data = token_contract.encodeABI(
+            fn_name="transfer",
+            args=[to, amount]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=token_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_erc721_transfer_transaction(self, token_address: str, to: str, token_id: int) -> SafeTransaction:
+        """
+        Creates a transaction to transfer ERC721 tokens.
+        """
+        from safe_kit.abis import ERC721_ABI
+        token_contract = self.eth_adapter.get_contract(token_address, ERC721_ABI)
+        
+        data = token_contract.encodeABI(
+            fn_name="safeTransferFrom",
+            args=[self.safe_address, to, token_id]
+        )
+        
+        return self.create_transaction(SafeTransactionData(
+            to=token_address,
+            value=0,
+            data=data,
+            operation=0
+        ))
+
+    def create_native_transfer_transaction(self, to: str, amount: int) -> SafeTransaction:
+        """
+        Creates a transaction to transfer native tokens (ETH).
+        """
+        return self.create_transaction(SafeTransactionData(
+            to=to,
+            value=amount,
+            data="0x",
+            operation=0
+        ))
+
+    def create_rejection_transaction(self, nonce: int) -> SafeTransaction:
+        """
+        Creates a transaction to reject a pending transaction (by reusing the nonce).
+        """
+        return self.create_transaction(SafeTransactionData(
+            to=self.safe_address,
+            value=0,
+            data="0x",
+            operation=0,
+            nonce=nonce
+        ))
+
 

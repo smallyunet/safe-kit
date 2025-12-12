@@ -23,17 +23,17 @@ We can now create transactions to manage owners and thresholds.
 - [x] **`changeThreshold`**: Create a transaction to change the signature threshold.
 
 ## 3. Transaction Creation Helpers
-*Current Status: Basic `create_transaction` implemented*
+*Current Status: Implemented*
 
-Users currently need to manually construct `data` bytes for transactions.
+Helper methods for creating common transactions are now available.
 
-- [ ] **`createEnableModuleTx`**: Helper to enable a Safe module.
-- [ ] **`createDisableModuleTx`**: Helper to disable a Safe module.
-- [ ] **`createAddOwnerTx`**: Helper for owner management (underlying logic for section 2).
-- [ ] **`createERC20TransferTx`**: Helper to create a standard ERC20 token transfer.
-- [ ] **`createERC721TransferTx`**: Helper to create an NFT transfer.
-- [ ] **`createNativeTransferTx`**: Helper for ETH/Native token transfers.
-- [ ] **`createRejectionTx`**: Helper to create a transaction with the same nonce (to cancel a pending tx).
+- [x] **`createEnableModuleTx`**: Helper to enable a Safe module.
+- [x] **`createDisableModuleTx`**: Helper to disable a Safe module.
+- [x] **`createAddOwnerTx`**: Helper for owner management (underlying logic for section 2).
+- [x] **`createERC20TransferTx`**: Helper to create a standard ERC20 token transfer.
+- [x] **`createERC721TransferTx`**: Helper to create an NFT transfer.
+- [x] **`createNativeTransferTx`**: Helper for ETH/Native token transfers.
+- [x] **`createRejectionTx`**: Helper to create a transaction with the same nonce (to cancel a pending tx).
 
 ## 4. Signatures & Execution
 *Current Status: EIP-712 Signing implemented*
