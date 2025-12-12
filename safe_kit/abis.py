@@ -187,6 +187,17 @@ SAFE_ABI = [
         "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
         "stateMutability": "view",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {"internalType": "bytes32", "name": "dataHash", "type": "bytes32"},
+            {"internalType": "bytes", "name": "data", "type": "bytes"},
+            {"internalType": "bytes", "name": "signatures", "type": "bytes"}
+        ],
+        "name": "checkSignatures",
+        "outputs": [],
+        "stateMutability": "view",
+        "type": "function"
     }
 ]
 

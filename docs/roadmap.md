@@ -40,8 +40,8 @@ Helper methods for creating common transactions are now available.
 
 - [x] **`approveHash`**: Support for on-chain transaction approval (for smart contract wallets as owners).
 - [x] **`eth_sign` Support**: Support for `eth_sign` (legacy) signatures for hardware wallets that don't support EIP-712.
-- [ ] **Signature Validation**: Utilities to verify signatures off-chain.
-- [ ] **Gas Estimation**: `estimateTxGas` to automatically calculate `safeTxGas`.
+- [x] **Signature Validation**: Utilities to verify signatures off-chain (via `checkSignatures`).
+- [x] **Gas Estimation**: `estimateTxGas` to automatically calculate `safeTxGas` (via `requiredTxGas`).
 
 ## 5. Advanced Features
 *Current Status: Missing*

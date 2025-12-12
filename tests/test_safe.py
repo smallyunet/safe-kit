@@ -227,3 +227,21 @@ def test_create_rejection_transaction(safe):
     assert tx.data.value == 0
     assert tx.data.data == "0x"
     assert tx.data.nonce == 5
+
+def test_estimate_transaction_gas(safe, mock_contract):
+    mock_contract.functions.requiredTxGas.return_value.call.return_value = 50000
+    
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+    gas = safe.estimate_transaction_gas(tx)
+    
+    assert gas == 50000
+    mock_contract.functions.requiredTxGas.assert_called_once()
+
+def test_check_signatures(safe, mock_contract):
+    mock_contract.functions.getTransactionHash.return_value.call.return_value = b"hash"
+    
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+    # Should not raise
+    safe.check_signatures(tx)
+    
+    mock_contract.functions.checkSignatures.assert_called_once()

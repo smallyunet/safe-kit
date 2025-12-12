@@ -370,4 +370,40 @@ class Safe:
             nonce=nonce
         ))
 
+    def estimate_transaction_gas(self, safe_transaction: SafeTransaction) -> int:
+        """
+        Estimates the gas required for a Safe transaction.
+        """
+        from hexbytes import HexBytes
+        
+        return self.contract.functions.requiredTxGas(
+            safe_transaction.data.to,
+            safe_transaction.data.value,
+            HexBytes(safe_transaction.data.data),
+            safe_transaction.data.operation,
+            safe_transaction.data.safe_tx_gas,
+            safe_transaction.data.base_gas,
+            safe_transaction.data.gas_price,
+            safe_transaction.data.gas_token,
+            safe_transaction.data.refund_receiver,
+            safe_transaction.sorted_signatures_bytes
+        ).call()
+
+    def check_signatures(self, safe_transaction: SafeTransaction) -> None:
+        """
+        Checks if the signatures on the transaction are valid.
+        Raises an error if signatures are invalid.
+        """
+        from hexbytes import HexBytes
+        
+        tx_hash = self.get_transaction_hash(safe_transaction)
+        # Convert hex string hash to bytes
+        tx_hash_bytes = HexBytes(tx_hash)
+        
+        self.contract.functions.checkSignatures(
+            tx_hash_bytes,
+            HexBytes(safe_transaction.data.data),
+            safe_transaction.sorted_signatures_bytes
+        ).call()
+
 
