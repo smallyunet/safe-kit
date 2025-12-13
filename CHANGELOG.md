@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2025-12-13
+
+### Added
+- **Transaction History**: Added `get_multisig_transactions` to `SafeServiceClient` to fetch executed transactions with filtering.
+- **Chain ID Validation**: Added `chain_id` parameter to `Safe` class constructor to ensure it matches the connected adapter's chain ID.
+- **Automated Publishing**: Added GitHub Action to automatically publish to PyPI on tag creation.
+
 ## [0.0.3] - 2025-12-12
 
 ### Added

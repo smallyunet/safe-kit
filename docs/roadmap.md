@@ -10,7 +10,8 @@ Focus on implementing core functionalities and ensuring the library is usable fo
 - **v0.0.2** (Released): Basic Safe deployment, transaction creation, and execution.
 - **v0.0.3** (Released): MultiSend support (batching) and Safe Transaction Service integration.
 - **v0.0.4** (Released): Improved type safety, auto-generated types from ABIs, and CI/CD integration.
-- **v0.0.5** (Planned): Enhanced Safe Transaction Service client (balances, history), Safe v1.4.1 support, and automated PyPI publishing.
+- **v0.0.5** (Skipped): Implementation merged into v0.0.6.
+- **v0.0.6** (Released): Enhanced Safe Transaction Service client (history), Chain ID validation, and automated PyPI publishing.
 
 ### v0.1.x (Beta)
 Focus on stability, comprehensive testing, and developer experience improvements.

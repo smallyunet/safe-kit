@@ -64,6 +64,57 @@ def test_get_pending_transactions(service):
         assert len(txs) == 1
         assert txs[0].safe_tx_hash == "0xHash"
 
+def test_get_multisig_transactions(service):
+    safe_address = "0xSafeAddress"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/safes/{safe_address}/multisig-transactions/?executed=true&trusted=true&ordering=-nonce&limit=10&offset=0",
+            json={"results": [{
+                "safe": safe_address,
+                "to": "0xTo",
+                "value": "0",
+                "data": None,
+                "operation": 0,
+                "gasToken": "0x0000000000000000000000000000000000000000",
+                "safeTxGas": 0,
+                "baseGas": 0,
+                "gasPrice": "0",
+                "refundReceiver": "0x0000000000000000000000000000000000000000",
+                "nonce": 1,
+                "executionDate": "2023-01-02T00:00:00Z",
+                "submissionDate": "2023-01-01T00:00:00Z",
+                "modified": "2023-01-02T00:00:00Z",
+                "blockNumber": 12345,
+                "transactionHash": "0xTxHash",
+                "safeTxHash": "0xHash",
+                "executor": "0xExecutor",
+                "isExecuted": True,
+                "isSuccessful": True,
+                "ethGasPrice": "1000000000",
+                "maxFeePerGas": "1000000000",
+                "maxPriorityFeePerGas": "1000000000",
+                "gasUsed": 21000,
+                "fee": "21000000000000",
+                "origin": None,
+                "dataDecoded": None,
+                "confirmationsRequired": 2,
+                "confirmations": [],
+                "trusted": True,
+                "signatures": None
+            }]}
+        )
+        txs = service.get_multisig_transactions(
+            safe_address,
+            executed=True,
+            trust=True,
+            ordering="-nonce",
+            limit=10,
+            offset=0
+        )
+        assert len(txs) == 1
+        assert txs[0].safe_tx_hash == "0xHash"
+        assert txs[0].is_executed is True
+
 def test_propose_transaction(service):
     safe_address = "0xSafeAddress"
     tx_data = SafeTransactionData(

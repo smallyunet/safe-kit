@@ -20,17 +20,30 @@ class Safe:
     The main class for interacting with a Safe.
     """
 
-    def __init__(self, eth_adapter: EthAdapter, safe_address: str):
+    def __init__(
+        self, eth_adapter: EthAdapter, safe_address: str, chain_id: int | None = None
+    ):
         self.eth_adapter = eth_adapter
         self.safe_address = safe_address
         self.contract = self.eth_adapter.get_safe_contract(safe_address)
+        self.chain_id = chain_id
+
+        if self.chain_id is not None:
+            adapter_chain_id = self.eth_adapter.get_chain_id()
+            if adapter_chain_id != self.chain_id:
+                raise ValueError(
+                    f"Adapter chain ID ({adapter_chain_id}) does not match "
+                    f"Safe chain ID ({self.chain_id})"
+                )
 
     @classmethod
-    def create(cls, eth_adapter: EthAdapter, safe_address: str) -> "Safe":
+    def create(
+        cls, eth_adapter: EthAdapter, safe_address: str, chain_id: int | None = None
+    ) -> "Safe":
         """
         Factory method to create a Safe instance.
         """
-        return cls(eth_adapter, safe_address)
+        return cls(eth_adapter, safe_address, chain_id)
 
     def get_address(self) -> str:
         """

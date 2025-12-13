@@ -78,11 +78,42 @@ class SafeServiceClient:
         """
         Returns the list of pending transactions for a Safe.
         """
+        return self.get_multisig_transactions(
+            safe_address,
+            executed=False,
+            trust=True,
+            nonce_gte=current_nonce,
+        )
+
+    def get_multisig_transactions(
+        self,
+        safe_address: str,
+        executed: bool | None = None,
+        trust: bool | None = None,
+        nonce_gte: int | None = None,
+        ordering: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> list[SafeMultisigTransactionResponse]:
+        """
+        Returns the list of multisig transactions for a Safe.
+        """
         url = f"{self.service_url}/v1/safes/{safe_address}/multisig-transactions/"
-        params = {"executed": "false", "trusted": "true"}
-        if current_nonce is not None:
-            params["nonce__gte"] = str(current_nonce)
-            
+        params: dict[str, Any] = {}
+
+        if executed is not None:
+            params["executed"] = str(executed).lower()
+        if trust is not None:
+            params["trusted"] = str(trust).lower()
+        if nonce_gte is not None:
+            params["nonce__gte"] = str(nonce_gte)
+        if ordering:
+            params["ordering"] = ordering
+        if limit is not None:
+            params["limit"] = str(limit)
+        if offset is not None:
+            params["offset"] = str(offset)
+
         response = requests.get(url, params=params)
         data = self._handle_response(response)
         results = data.get("results", [])
