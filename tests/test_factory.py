@@ -49,7 +49,7 @@ def test_predict_safe_address(factory, mock_proxy_factory, mock_safe_singleton):
     assert address == "0xPredictedSafe"
     mock_safe_singleton.encodeABI.assert_called_once()
     mock_proxy_factory.functions.createProxyWithNonce.assert_called_with(
-        "0xSingleton", b"initializer", 0
+        _singleton="0xSingleton", initializer=b"initializer", saltNonce=0
     )
 
 
@@ -63,4 +63,27 @@ def test_deploy_safe(factory, mock_proxy_factory, mock_safe_singleton):
     safe = factory.deploy_safe(config)
 
     assert safe.get_address() == "0xPredictedSafe"
-    mock_proxy_factory.functions.createProxyWithNonce.return_value.transact.assert_called_once()
+    mock_proxy_factory.functions.createProxyWithNonce.return_value.transact.assert_called_with(
+        {"from": "0xSigner"}
+    )
+    mock_proxy_factory.functions.createProxyWithNonce.assert_called_with(
+        _singleton="0xSingleton", initializer=b"initializer", saltNonce=0
+    )
+
+
+def test_deploy_safe_v1_4_1(factory, mock_proxy_factory, mock_safe_singleton):
+    mock_safe_singleton.encodeABI.return_value = b"initializer"
+    mock_proxy_factory.functions.createChainSpecificProxyWithNonce.return_value.call.return_value = (
+        "0xPredictedSafe"
+    )
+
+    config = SafeAccountConfig(owners=["0xOwner1"], threshold=1)
+    safe = factory.deploy_safe_v1_4_1(config)
+
+    assert safe.get_address() == "0xPredictedSafe"
+    mock_proxy_factory.functions.createChainSpecificProxyWithNonce.return_value.transact.assert_called_with(
+        {"from": "0xSigner"}
+    )
+    mock_proxy_factory.functions.createChainSpecificProxyWithNonce.assert_called_with(
+        _singleton="0xSingleton", initializer=b"initializer", saltNonce=0
+    )

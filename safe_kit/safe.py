@@ -3,6 +3,13 @@ from typing import cast
 from hexbytes import HexBytes
 
 from safe_kit.adapter import EthAdapter
+from safe_kit.contract_types import (
+    SafeApproveHashParams,
+    SafeExecTransactionParams,
+    SafeGetTransactionHashParams,
+    SafeIsOwnerParams,
+    SafeRequiredTxGasParams,
+)
 from safe_kit.errors import handle_contract_error
 from safe_kit.multisend import MultiSend
 from safe_kit.types import SafeTransaction, SafeTransactionData
@@ -65,7 +72,8 @@ class Safe:
         """
         Checks if an address is an owner of the Safe.
         """
-        return cast(bool, self.contract.functions.isOwner(address).call())
+        params: SafeIsOwnerParams = {"owner": address}
+        return cast(bool, self.contract.functions.isOwner(**params).call())
 
     def create_transaction(
         self, transaction_data: SafeTransactionData
@@ -118,23 +126,22 @@ class Safe:
         """
         Returns the hash of the Safe transaction.
         """
+        params: SafeGetTransactionHashParams = {
+            "to": safe_transaction.data.to,
+            "value": safe_transaction.data.value,
+            "data": HexBytes(safe_transaction.data.data),
+            "operation": safe_transaction.data.operation,
+            "safeTxGas": safe_transaction.data.safe_tx_gas,
+            "baseGas": safe_transaction.data.base_gas,
+            "gasPrice": safe_transaction.data.gas_price,
+            "gasToken": safe_transaction.data.gas_token,
+            "refundReceiver": safe_transaction.data.refund_receiver,
+            "_nonce": safe_transaction.data.nonce,
+        }
 
         return cast(
             str,
-            self.contract.functions.getTransactionHash(
-                safe_transaction.data.to,
-                safe_transaction.data.value,
-                HexBytes(safe_transaction.data.data),
-                safe_transaction.data.operation,
-                safe_transaction.data.safe_tx_gas,
-                safe_transaction.data.base_gas,
-                safe_transaction.data.gas_price,
-                safe_transaction.data.gas_token,
-                safe_transaction.data.refund_receiver,
-                safe_transaction.data.nonce,
-            )
-            .call()
-            .hex(),
+            self.contract.functions.getTransactionHash(**params).call().hex(),
         )
 
     def approve_hash(self, hash_to_approve: str) -> str:
@@ -142,9 +149,10 @@ class Safe:
         Approves a hash on-chain.
         """
         try:
-            tx_hash = self.contract.functions.approveHash(
-                HexBytes(hash_to_approve)
-            ).transact({"from": self.eth_adapter.get_signer_address()})
+            params: SafeApproveHashParams = {"hashToApprove": HexBytes(hash_to_approve)}
+            tx_hash = self.contract.functions.approveHash(**params).transact(
+                {"from": self.eth_adapter.get_signer_address()}
+            )
             return cast(str, tx_hash.hex())
         except Exception as e:
             raise handle_contract_error(e) from e
@@ -157,18 +165,22 @@ class Safe:
         sorted_signatures = safe_transaction.sorted_signatures_bytes
 
         try:
-            tx_hash = self.contract.functions.execTransaction(
-                safe_transaction.data.to,
-                safe_transaction.data.value,
-                HexBytes(safe_transaction.data.data),
-                safe_transaction.data.operation,
-                safe_transaction.data.safe_tx_gas,
-                safe_transaction.data.base_gas,
-                safe_transaction.data.gas_price,
-                safe_transaction.data.gas_token,
-                safe_transaction.data.refund_receiver,
-                sorted_signatures,
-            ).transact({"from": self.eth_adapter.get_signer_address()})
+            params: SafeExecTransactionParams = {
+                "to": safe_transaction.data.to,
+                "value": safe_transaction.data.value,
+                "data": HexBytes(safe_transaction.data.data),
+                "operation": safe_transaction.data.operation,
+                "safeTxGas": safe_transaction.data.safe_tx_gas,
+                "baseGas": safe_transaction.data.base_gas,
+                "gasPrice": safe_transaction.data.gas_price,
+                "gasToken": safe_transaction.data.gas_token,
+                "refundReceiver": safe_transaction.data.refund_receiver,
+                "signatures": sorted_signatures,
+            }
+
+            tx_hash = self.contract.functions.execTransaction(**params).transact(
+                {"from": self.eth_adapter.get_signer_address()}
+            )
 
             return cast(str, tx_hash.hex())
         except Exception as e:
@@ -392,25 +404,25 @@ class Safe:
                 operation=1,  # DelegateCall
             )
         )
-
     def estimate_transaction_gas(self, safe_transaction: SafeTransaction) -> int:
         """
         Estimates the gas required for a Safe transaction.
         """
+        params: SafeRequiredTxGasParams = {
+            "to": safe_transaction.data.to,
+            "value": safe_transaction.data.value,
+            "data": HexBytes(safe_transaction.data.data),
+            "operation": safe_transaction.data.operation,
+            "safeTxGas": safe_transaction.data.safe_tx_gas,
+            "baseGas": safe_transaction.data.base_gas,
+            "gasPrice": safe_transaction.data.gas_price,
+            "gasToken": safe_transaction.data.gas_token,
+            "refundReceiver": safe_transaction.data.refund_receiver,
+            "signatures": safe_transaction.sorted_signatures_bytes,
+        }
         return cast(
             int,
-            self.contract.functions.requiredTxGas(
-                safe_transaction.data.to,
-                safe_transaction.data.value,
-                HexBytes(safe_transaction.data.data),
-                safe_transaction.data.operation,
-                safe_transaction.data.safe_tx_gas,
-                safe_transaction.data.base_gas,
-                safe_transaction.data.gas_price,
-                safe_transaction.data.gas_token,
-                safe_transaction.data.refund_receiver,
-                safe_transaction.sorted_signatures_bytes,
-            ).call(),
+            self.contract.functions.requiredTxGas(**params).call(),
         )
 
     def check_signatures(self, safe_transaction: SafeTransaction) -> None:

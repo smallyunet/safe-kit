@@ -4,6 +4,7 @@ import requests
 
 from safe_kit.errors import SafeServiceError
 from safe_kit.types import (
+    SafeBalanceResponse,
     SafeMultisigTransactionResponse,
     SafeServiceInfo,
     SafeTransactionData,
@@ -98,3 +99,36 @@ class SafeServiceClient:
         
         response = requests.post(url, json=payload)
         self._handle_response(response)
+
+    def get_transaction(self, safe_tx_hash: str) -> SafeMultisigTransactionResponse:
+        """
+        Returns the details of a specific Safe transaction.
+        """
+        url = f"{self.service_url}/v1/multisig-transactions/{safe_tx_hash}/"
+        response = requests.get(url)
+        data = self._handle_response(response)
+        return SafeMultisigTransactionResponse(**data)
+
+    def get_safes_by_owner(self, owner_address: str) -> list[str]:
+        """
+        Returns the list of Safes owned by an address.
+        """
+        url = f"{self.service_url}/v1/owners/{owner_address}/safes/"
+        response = requests.get(url)
+        data = self._handle_response(response)
+        return data.get("safes", [])
+
+    def get_balances(
+        self, safe_address: str, trusted: bool = False, exclude_spam: bool = True
+    ) -> list[SafeBalanceResponse]:
+        """
+        Returns the balances of a Safe (ETH and ERC20).
+        """
+        url = f"{self.service_url}/v1/safes/{safe_address}/balances/"
+        params = {
+            "trusted": str(trusted).lower(),
+            "exclude_spam": str(exclude_spam).lower(),
+        }
+        response = requests.get(url, params=params)
+        data = self._handle_response(response)
+        return [SafeBalanceResponse(**item) for item in data]

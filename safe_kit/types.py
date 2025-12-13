@@ -141,3 +141,9 @@ class SafeMultisigTransactionResponse(BaseModel):
     confirmations: list[dict[str, Any]] | None
     trusted: bool
     signatures: str | None
+
+
+class SafeBalanceResponse(BaseModel):
+    token_address: str | None = Field(alias="tokenAddress")
+    token: dict[str, Any] | None
+    balance: str

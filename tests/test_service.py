@@ -105,3 +105,82 @@ def test_confirm_transaction(service):
         service.confirm_transaction(safe_tx_hash, "0xSig")
         assert m.called
         assert m.last_request.json()["signature"] == "0xSig"
+
+
+def test_get_transaction(service):
+    safe_tx_hash = "0xHash"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/multisig-transactions/{safe_tx_hash}/",
+            json={
+                "safe": "0xSafe",
+                "to": "0xTo",
+                "value": "0",
+                "data": None,
+                "operation": 0,
+                "gasToken": "0x0000000000000000000000000000000000000000",
+                "safeTxGas": 0,
+                "baseGas": 0,
+                "gasPrice": "0",
+                "refundReceiver": "0x0000000000000000000000000000000000000000",
+                "nonce": 0,
+                "executionDate": None,
+                "submissionDate": "2023-01-01T00:00:00Z",
+                "modified": "2023-01-01T00:00:00Z",
+                "blockNumber": None,
+                "transactionHash": None,
+                "safeTxHash": safe_tx_hash,
+                "executor": None,
+                "isExecuted": False,
+                "isSuccessful": None,
+                "ethGasPrice": None,
+                "maxFeePerGas": None,
+                "maxPriorityFeePerGas": None,
+                "gasUsed": None,
+                "fee": None,
+                "origin": None,
+                "dataDecoded": None,
+                "confirmationsRequired": 2,
+                "confirmations": [],
+                "trusted": True,
+                "signatures": None,
+            },
+        )
+        tx = service.get_transaction(safe_tx_hash)
+        assert tx.safe_tx_hash == safe_tx_hash
+
+
+def test_get_safes_by_owner(service):
+    owner_address = "0xOwner"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/owners/{owner_address}/safes/",
+            json={"safes": ["0xSafe1", "0xSafe2"]},
+        )
+        safes = service.get_safes_by_owner(owner_address)
+        assert safes == ["0xSafe1", "0xSafe2"]
+
+
+def test_get_balances(service):
+    safe_address = "0xSafe"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/safes/{safe_address}/balances/?trusted=false&exclude_spam=true",
+            json=[
+                {
+                    "tokenAddress": None,
+                    "token": None,
+                    "balance": "1000000000000000000",
+                },
+                {
+                    "tokenAddress": "0xToken",
+                    "token": {"name": "Token", "symbol": "TKN", "decimals": 18},
+                    "balance": "5000000000000000000",
+                },
+            ],
+        )
+        balances = service.get_balances(safe_address)
+        assert len(balances) == 2
+        assert balances[0].token_address is None
+        assert balances[0].balance == "1000000000000000000"
+        assert balances[1].token_address == "0xToken"

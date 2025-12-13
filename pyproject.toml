@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "safe-kit"
-version = "0.0.4"
+version = "0.0.5"
 description = "Python implementation of the Safe Protocol Kit"
 authors = ["smallyu <smallyu@users.noreply.github.com>"]
 readme = "README.md"

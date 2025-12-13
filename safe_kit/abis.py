@@ -286,6 +286,33 @@ SAFE_PROXY_FACTORY_ABI: list[dict[str, Any]] = [
         "name": "ProxyCreation",
         "type": "event",
     },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "_singleton", "type": "address"},
+            {"internalType": "bytes", "name": "initializer", "type": "bytes"},
+            {"internalType": "uint256", "name": "saltNonce", "type": "uint256"},
+        ],
+        "name": "createChainSpecificProxyWithNonce",
+        "outputs": [{"internalType": "address", "name": "proxy", "type": "address"}],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+    {
+        "inputs": [
+            {"internalType": "address", "name": "_singleton", "type": "address"},
+            {"internalType": "bytes", "name": "initializer", "type": "bytes"},
+            {"internalType": "uint256", "name": "saltNonce", "type": "uint256"},
+            {
+                "internalType": "address",
+                "name": "callback",
+                "type": "address",
+            },
+        ],
+        "name": "createProxyWithCallback",
+        "outputs": [{"internalType": "address", "name": "proxy", "type": "address"}],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
 ]
 
 ERC20_ABI: list[dict[str, Any]] = [

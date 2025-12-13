@@ -3,7 +3,6 @@
 
 from typing import Any, TypedDict  # noqa: F401
 
-
 class SafeExecTransactionParams(TypedDict):
     to: str
     value: int
@@ -24,6 +23,12 @@ class SafeGetTransactionHashParams(TypedDict):
     value: int
     data: bytes
     operation: int
+    safeTxGas: int
+    baseGas: int
+    gasPrice: int
+    gasToken: str
+    refundReceiver: str
+    _nonce: int
 
 class SafeRequiredTxGasParams(TypedDict):
     to: str
@@ -96,6 +101,17 @@ class SafeProxyFactoryCreateProxyWithNonceParams(TypedDict):
     _singleton: str
     initializer: bytes
     saltNonce: int
+
+class SafeProxyFactoryCreateChainSpecificProxyWithNonceParams(TypedDict):
+    _singleton: str
+    initializer: bytes
+    saltNonce: int
+
+class SafeProxyFactoryCreateProxyWithCallbackParams(TypedDict):
+    _singleton: str
+    initializer: bytes
+    saltNonce: int
+    callback: str
 
 class Erc20TransferParams(TypedDict):
     _to: str

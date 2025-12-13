@@ -4,6 +4,10 @@ from hexbytes import HexBytes
 
 from safe_kit.abis import SAFE_PROXY_FACTORY_ABI
 from safe_kit.adapter import EthAdapter
+from safe_kit.contract_types import (
+    SafeProxyFactoryCreateChainSpecificProxyWithNonceParams,
+    SafeProxyFactoryCreateProxyWithNonceParams,
+)
 from safe_kit.errors import handle_contract_error
 from safe_kit.safe import Safe
 from safe_kit.types import SafeAccountConfig
@@ -54,10 +58,33 @@ class SafeFactory:
         configuration.
         """
         initializer = self._get_initializer_data(config)
+        params: SafeProxyFactoryCreateProxyWithNonceParams = {
+            "_singleton": self.safe_singleton_address,
+            "initializer": initializer,
+            "saltNonce": salt_nonce,
+        }
         return cast(
             str,
-            self.proxy_factory_contract.functions.createProxyWithNonce(
-                self.safe_singleton_address, initializer, salt_nonce
+            self.proxy_factory_contract.functions.createProxyWithNonce(**params).call(),
+        )
+
+    def predict_safe_address_v1_4_1(
+        self, config: SafeAccountConfig, salt_nonce: int = 0
+    ) -> str:
+        """
+        Predicts the address of the Safe (v1.4.1) that would be deployed.
+        Uses createChainSpecificProxyWithNonce.
+        """
+        initializer = self._get_initializer_data(config)
+        params: SafeProxyFactoryCreateChainSpecificProxyWithNonceParams = {
+            "_singleton": self.safe_singleton_address,
+            "initializer": initializer,
+            "saltNonce": salt_nonce,
+        }
+        return cast(
+            str,
+            self.proxy_factory_contract.functions.createChainSpecificProxyWithNonce(
+                **params
             ).call(),
         )
 
@@ -74,8 +101,39 @@ class SafeFactory:
         safe_address = self.predict_safe_address(config, salt_nonce)
 
         try:
+            params: SafeProxyFactoryCreateProxyWithNonceParams = {
+                "_singleton": self.safe_singleton_address,
+                "initializer": initializer,
+                "saltNonce": salt_nonce,
+            }
             self.proxy_factory_contract.functions.createProxyWithNonce(
-                self.safe_singleton_address, initializer, salt_nonce
+                **params
+            ).transact({"from": signer})
+        except Exception as e:
+            raise handle_contract_error(e) from e
+
+        return Safe(self.eth_adapter, safe_address)
+
+    def deploy_safe_v1_4_1(self, config: SafeAccountConfig, salt_nonce: int = 0) -> Safe:
+        """
+        Deploys a new Safe contract (v1.4.1).
+        Returns a Safe instance with the predicted address.
+        """
+        signer = self.eth_adapter.get_signer_address()
+        if not signer:
+            raise ValueError("No signer configured in the adapter")
+
+        initializer = self._get_initializer_data(config)
+        safe_address = self.predict_safe_address_v1_4_1(config, salt_nonce)
+
+        try:
+            params: SafeProxyFactoryCreateChainSpecificProxyWithNonceParams = {
+                "_singleton": self.safe_singleton_address,
+                "initializer": initializer,
+                "saltNonce": salt_nonce,
+            }
+            self.proxy_factory_contract.functions.createChainSpecificProxyWithNonce(
+                **params
             ).transact({"from": signer})
         except Exception as e:
             raise handle_contract_error(e) from e
