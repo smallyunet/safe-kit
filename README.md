@@ -3,6 +3,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/safe-kit.svg)](https://pypi.org/project/safe-kit/)
 [![Python versions](https://img.shields.io/pypi/pyversions/safe-kit.svg)](https://pypi.org/project/safe-kit/)
 [![License](https://img.shields.io/pypi/l/safe-kit.svg)](https://github.com/smallyunet/safe-kit/blob/main/LICENSE)
+[![CI](https://github.com/smallyunet/safe-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/smallyunet/safe-kit/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/smallyunet/safe-kit/branch/main/graph/badge.svg)](https://codecov.io/gh/smallyunet/safe-kit)
 
 A Python implementation of the [Safe Protocol Kit](https://github.com/safe-global/safe-core-sdk), designed to mirror the developer experience of the official Node.js SDK.
 

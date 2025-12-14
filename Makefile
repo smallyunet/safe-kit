@@ -6,6 +6,9 @@ install:
 test:
 	poetry run pytest
 
+test-cov:
+	poetry run pytest --cov=safe_kit --cov-report=term-missing --cov-report=xml --cov-report=html
+
 lint:
 	poetry run ruff check .
 	poetry run mypy .
