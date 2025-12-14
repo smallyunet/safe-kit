@@ -5,6 +5,8 @@ import requests
 from safe_kit.errors import SafeServiceError
 from safe_kit.types import (
     SafeBalanceResponse,
+    SafeIncomingTransactionResponse,
+    SafeModuleTransactionResponse,
     SafeMultisigTransactionResponse,
     SafeServiceInfo,
     SafeTransactionData,
@@ -163,3 +165,48 @@ class SafeServiceClient:
         response = requests.get(url, params=params)
         data = self._handle_response(response)
         return [SafeBalanceResponse(**item) for item in data]
+
+    def get_incoming_transactions(
+        self,
+        safe_address: str,
+        executed: bool | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> list[SafeIncomingTransactionResponse]:
+        """
+        Returns the incoming transactions (ETH/ERC20) for a Safe.
+        """
+        url = f"{self.service_url}/v1/safes/{safe_address}/incoming-transfers/"
+        params: dict[str, Any] = {}
+        if executed is not None:
+            params["executed"] = str(executed).lower()
+        if limit is not None:
+            params["limit"] = str(limit)
+        if offset is not None:
+            params["offset"] = str(offset)
+
+        response = requests.get(url, params=params)
+        data = self._handle_response(response)
+        results = data.get("results", [])
+        return [SafeIncomingTransactionResponse(**tx) for tx in results]
+
+    def get_module_transactions(
+        self,
+        safe_address: str,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> list[SafeModuleTransactionResponse]:
+        """
+        Returns the module transactions for a Safe.
+        """
+        url = f"{self.service_url}/v1/safes/{safe_address}/module-transactions/"
+        params: dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = str(limit)
+        if offset is not None:
+            params["offset"] = str(offset)
+
+        response = requests.get(url, params=params)
+        data = self._handle_response(response)
+        results = data.get("results", [])
+        return [SafeModuleTransactionResponse(**tx) for tx in results]

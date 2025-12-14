@@ -11,6 +11,8 @@ from safe_kit.types import SafeAccountConfig
 def mock_adapter():
     adapter = MagicMock(spec=Web3Adapter)
     adapter.get_signer_address.return_value = "0xSigner"
+    adapter.to_checksum_address.side_effect = lambda x: x
+    adapter.is_contract.return_value = True
     return adapter
 
 

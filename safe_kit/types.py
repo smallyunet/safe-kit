@@ -147,3 +147,27 @@ class SafeBalanceResponse(BaseModel):
     token_address: str | None = Field(alias="tokenAddress")
     token: dict[str, Any] | None
     balance: str
+
+
+class SafeIncomingTransactionResponse(BaseModel):
+    execution_date: str = Field(alias="executionDate")
+    transaction_hash: str = Field(alias="transactionHash")
+    to: str
+    value: str
+    token_address: str | None = Field(alias="tokenAddress")
+    from_: str = Field(alias="from")
+
+
+class SafeModuleTransactionResponse(BaseModel):
+    created: str
+    execution_date: str = Field(alias="executionDate")
+    block_number: int = Field(alias="blockNumber")
+    is_successful: bool = Field(alias="isSuccessful")
+    transaction_hash: str = Field(alias="transactionHash")
+    safe: str
+    module: str
+    to: str
+    value: str
+    data: str | None
+    operation: int
+    data_decoded: dict[str, Any] | None = Field(alias="dataDecoded")

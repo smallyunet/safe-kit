@@ -13,6 +13,8 @@ def mock_adapter():
     adapter.get_balance.return_value = 1000
     adapter.get_chain_id.return_value = 1
     adapter.get_signer_address.return_value = "0xSigner"
+    adapter.to_checksum_address.side_effect = lambda x: x
+    adapter.is_contract.return_value = True
     return adapter
 
 

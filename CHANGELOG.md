@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7] - 2025-12-14
+
+### Added
+- **Safe Version Awareness**: Added `get_version` method to `Safe` class.
+- **Service Client Enhancements**: Added `get_incoming_transactions` and `get_module_transactions` to `SafeServiceClient`.
+- **Address Validation**: Added `is_contract` check and checksum address validation in `Safe` initialization.
+
 ## [0.0.6] - 2025-12-13
 
 ### Added

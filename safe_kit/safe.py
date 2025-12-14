@@ -24,8 +24,12 @@ class Safe:
         self, eth_adapter: EthAdapter, safe_address: str, chain_id: int | None = None
     ):
         self.eth_adapter = eth_adapter
-        self.safe_address = safe_address
-        self.contract = self.eth_adapter.get_safe_contract(safe_address)
+        self.safe_address = self.eth_adapter.to_checksum_address(safe_address)
+
+        if not self.eth_adapter.is_contract(self.safe_address):
+            raise ValueError(f"Address {self.safe_address} is not a contract")
+
+        self.contract = self.eth_adapter.get_safe_contract(self.safe_address)
         self.chain_id = chain_id
 
         if self.chain_id is not None:
@@ -50,6 +54,12 @@ class Safe:
         Returns the address of the Safe.
         """
         return self.safe_address
+
+    def get_version(self) -> str:
+        """
+        Returns the version of the Safe contract.
+        """
+        return self.contract.functions.VERSION().call()
 
     def get_balance(self) -> int:
         """

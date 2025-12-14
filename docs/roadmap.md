@@ -12,6 +12,7 @@ Focus on implementing core functionalities and ensuring the library is usable fo
 - **v0.0.4** (Released): Improved type safety, auto-generated types from ABIs, and CI/CD integration.
 - **v0.0.5** (Skipped): Implementation merged into v0.0.6.
 - **v0.0.6** (Released): Enhanced Safe Transaction Service client (history), Chain ID validation, and automated PyPI publishing.
+- **v0.0.7** (Released): Safe version awareness, extended service client queries, and improved address validation.
 
 ### v0.1.x (Beta)
 Focus on stability, comprehensive testing, and developer experience improvements.

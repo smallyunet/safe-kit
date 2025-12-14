@@ -50,6 +50,14 @@ class EthAdapter(ABC):
     def get_transaction_count(self, address: str) -> int:
         pass
 
+    @abstractmethod
+    def is_contract(self, address: str) -> bool:
+        pass
+
+    @abstractmethod
+    def to_checksum_address(self, address: str) -> str:
+        pass
+
 
 class Web3Adapter(EthAdapter):
     """
@@ -119,3 +127,10 @@ class Web3Adapter(EthAdapter):
         return self.web3.eth.get_transaction_count(
             self.web3.to_checksum_address(address)
         )
+
+    def is_contract(self, address: str) -> bool:
+        code = self.get_code(address)
+        return len(code) > 0
+
+    def to_checksum_address(self, address: str) -> str:
+        return self.web3.to_checksum_address(address)
