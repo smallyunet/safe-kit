@@ -3,6 +3,7 @@
 
 from typing import Any, TypedDict  # noqa: F401
 
+
 class SafeExecTransactionParams(TypedDict):
     to: str
     value: int

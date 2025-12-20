@@ -75,9 +75,8 @@ def test_deploy_safe(factory, mock_proxy_factory, mock_safe_singleton):
 
 def test_deploy_safe_v1_4_1(factory, mock_proxy_factory, mock_safe_singleton):
     mock_safe_singleton.encodeABI.return_value = b"initializer"
-    mock_proxy_factory.functions.createChainSpecificProxyWithNonce.return_value.call.return_value = (
-        "0xPredictedSafe"
-    )
+    chain_specific_func = mock_proxy_factory.functions.createChainSpecificProxyWithNonce
+    chain_specific_func.return_value.call.return_value = "0xPredictedSafe"
 
     config = SafeAccountConfig(owners=["0xOwner1"], threshold=1)
     safe = factory.deploy_safe_v1_4_1(config)

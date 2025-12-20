@@ -114,7 +114,9 @@ class SafeFactory:
 
         return Safe(self.eth_adapter, safe_address)
 
-    def deploy_safe_v1_4_1(self, config: SafeAccountConfig, salt_nonce: int = 0) -> Safe:
+    def deploy_safe_v1_4_1(
+        self, config: SafeAccountConfig, salt_nonce: int = 0
+    ) -> Safe:
         """
         Deploys a new Safe contract (v1.4.1).
         Returns a Safe instance with the predicted address.

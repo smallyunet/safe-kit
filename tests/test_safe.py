@@ -50,7 +50,8 @@ def test_safe_initialization_chain_id_match(mock_adapter, mock_contract):
 def test_safe_initialization_chain_id_mismatch(mock_adapter, mock_contract):
     # Adapter defaults to chain_id=1
     mock_adapter.get_safe_contract.return_value = mock_contract
-    with pytest.raises(ValueError, match="Adapter chain ID \(1\) does not match Safe chain ID \(2\)"):
+    expected_msg = r"Adapter chain ID \(1\) does not match Safe chain ID \(2\)"
+    with pytest.raises(ValueError, match=expected_msg):
         Safe(eth_adapter=mock_adapter, safe_address="0xSafeAddress", chain_id=2)
 
 
