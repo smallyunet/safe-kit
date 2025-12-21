@@ -53,8 +53,8 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
     - name: Lint and auto-fix with Ruff
       run: |
-        poetry run ruff check --fix .
         poetry run ruff format .
+        poetry run ruff check --fix .
     - name: Commit fixes if any
       if: github.event_name == 'push'
       run: |

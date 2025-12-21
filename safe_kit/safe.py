@@ -171,7 +171,11 @@ class Safe(
             "gasPrice": safe_transaction.data.gas_price,
             "gasToken": safe_transaction.data.gas_token,
             "refundReceiver": safe_transaction.data.refund_receiver,
-            "_nonce": safe_transaction.data.nonce if safe_transaction.data.nonce is not None else 0,
+            "_nonce": (
+                safe_transaction.data.nonce
+                if safe_transaction.data.nonce is not None
+                else 0
+            ),
         }
 
         return cast(
