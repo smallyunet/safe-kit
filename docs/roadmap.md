@@ -13,6 +13,7 @@ Focus on implementing core functionalities and ensuring the library is usable fo
 - **v0.0.5** (Skipped): Implementation merged into v0.0.6.
 - **v0.0.6** (Released): Enhanced Safe Transaction Service client (history), Chain ID validation, and automated PyPI publishing.
 - **v0.0.7** (Released): Safe version awareness, extended service client queries, and improved address validation.
+- **v0.0.8** (Released): Extended Service Client with Safe info, creation info, collectibles (NFTs), and delegates management.
 
 ### v0.1.x (Beta)
 Focus on stability, comprehensive testing, and developer experience improvements.

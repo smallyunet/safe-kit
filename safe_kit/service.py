@@ -5,7 +5,11 @@ import requests
 from safe_kit.errors import SafeServiceError
 from safe_kit.types import (
     SafeBalanceResponse,
+    SafeCollectibleResponse,
+    SafeCreationInfoResponse,
+    SafeDelegateResponse,
     SafeIncomingTransactionResponse,
+    SafeInfoResponse,
     SafeModuleTransactionResponse,
     SafeMultisigTransactionResponse,
     SafeServiceInfo,
@@ -210,3 +214,89 @@ class SafeServiceClient:
         data = self._handle_response(response)
         results = data.get("results", [])
         return [SafeModuleTransactionResponse(**tx) for tx in results]
+
+    def get_safe_info(self, safe_address: str) -> SafeInfoResponse:
+        """
+        Returns detailed information about a Safe.
+        """
+        url = f"{self.service_url}/v1/safes/{safe_address}/"
+        response = requests.get(url)
+        data = self._handle_response(response)
+        return SafeInfoResponse(**data)
+
+    def get_creation_info(self, safe_address: str) -> SafeCreationInfoResponse:
+        """
+        Returns information about when and how a Safe was created.
+        """
+        url = f"{self.service_url}/v1/safes/{safe_address}/creation/"
+        response = requests.get(url)
+        data = self._handle_response(response)
+        return SafeCreationInfoResponse(**data)
+
+    def get_collectibles(
+        self,
+        safe_address: str,
+        trusted: bool = False,
+        exclude_spam: bool = True,
+    ) -> list[SafeCollectibleResponse]:
+        """
+        Returns NFTs (ERC721) owned by the Safe.
+        """
+        url = f"{self.service_url}/v1/safes/{safe_address}/collectibles/"
+        params = {
+            "trusted": str(trusted).lower(),
+            "exclude_spam": str(exclude_spam).lower(),
+        }
+        response = requests.get(url, params=params)
+        data = self._handle_response(response)
+        return [SafeCollectibleResponse(**item) for item in data]
+
+    def get_delegates(self, safe_address: str) -> list[SafeDelegateResponse]:
+        """
+        Returns the list of delegates for a Safe.
+        """
+        url = f"{self.service_url}/v1/delegates/"
+        params = {"safe": safe_address}
+        response = requests.get(url, params=params)
+        data = self._handle_response(response)
+        results = data.get("results", [])
+        return [SafeDelegateResponse(**item) for item in results]
+
+    def add_delegate(
+        self,
+        safe_address: str,
+        delegate_address: str,
+        delegator: str,
+        label: str,
+        signature: str,
+    ) -> None:
+        """
+        Adds a delegate to a Safe.
+        """
+        url = f"{self.service_url}/v1/delegates/"
+        payload = {
+            "safe": safe_address,
+            "delegate": delegate_address,
+            "delegator": delegator,
+            "label": label,
+            "signature": signature,
+        }
+        response = requests.post(url, json=payload)
+        self._handle_response(response)
+
+    def remove_delegate(
+        self,
+        delegate_address: str,
+        delegator: str,
+        signature: str,
+    ) -> None:
+        """
+        Removes a delegate.
+        """
+        url = f"{self.service_url}/v1/delegates/{delegate_address}/"
+        payload = {
+            "delegator": delegator,
+            "signature": signature,
+        }
+        response = requests.delete(url, json=payload)
+        self._handle_response(response)

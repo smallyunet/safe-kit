@@ -171,3 +171,52 @@ class SafeModuleTransactionResponse(BaseModel):
     data: str | None
     operation: int
     data_decoded: dict[str, Any] | None = Field(alias="dataDecoded")
+
+
+class SafeInfoResponse(BaseModel):
+    """Information about a Safe from the Transaction Service."""
+
+    address: str
+    nonce: int
+    threshold: int
+    owners: list[str]
+    master_copy: str = Field(alias="masterCopy")
+    modules: list[str]
+    fallback_handler: str = Field(alias="fallbackHandler")
+    guard: str
+    version: str | None
+
+
+class SafeCreationInfoResponse(BaseModel):
+    """Information about Safe creation."""
+
+    created: str
+    creator: str
+    transaction_hash: str = Field(alias="transactionHash")
+    factory_address: str = Field(alias="factoryAddress")
+    master_copy: str = Field(alias="masterCopy")
+    setup_data: str | None = Field(alias="setupData")
+
+
+class SafeCollectibleResponse(BaseModel):
+    """NFT/Collectible owned by a Safe."""
+
+    address: str
+    token_name: str = Field(alias="tokenName")
+    token_symbol: str = Field(alias="tokenSymbol")
+    logo_uri: str = Field(alias="logoUri")
+    id: str
+    uri: str | None
+    name: str | None
+    description: str | None
+    image_uri: str | None = Field(alias="imageUri")
+    metadata: dict[str, Any] | None
+
+
+class SafeDelegateResponse(BaseModel):
+    """Delegate for a Safe."""
+
+    safe: str | None
+    delegate: str
+    delegator: str
+    label: str

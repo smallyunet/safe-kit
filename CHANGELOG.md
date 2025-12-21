@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.8] - 2025-12-21
+
+### Added
+- **Safe Info**: Added `get_safe_info` to `SafeServiceClient` to fetch detailed Safe information (owners, threshold, nonce, version, etc.).
+- **Creation Info**: Added `get_creation_info` to retrieve Safe creation details (creator, factory, transaction hash).
+- **Collectibles**: Added `get_collectibles` to query NFTs (ERC721) owned by a Safe.
+- **Delegates Management**: Added `get_delegates`, `add_delegate`, and `remove_delegate` for delegate management.
+
 ## [0.0.7] - 2025-12-14
 
 ### Added

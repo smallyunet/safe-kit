@@ -251,3 +251,131 @@ def test_get_balances(service):
         assert balances[0].token_address is None
         assert balances[0].balance == "1000000000000000000"
         assert balances[1].token_address == "0xToken"
+
+
+def test_get_safe_info(service):
+    safe_address = "0xSafeAddress"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/safes/{safe_address}/",
+            json={
+                "address": safe_address,
+                "nonce": 5,
+                "threshold": 2,
+                "owners": ["0xOwner1", "0xOwner2", "0xOwner3"],
+                "masterCopy": "0xMasterCopy",
+                "modules": ["0xModule1"],
+                "fallbackHandler": "0xFallbackHandler",
+                "guard": "0x0000000000000000000000000000000000000000",
+                "version": "1.3.0",
+            },
+        )
+        info = service.get_safe_info(safe_address)
+        assert info.address == safe_address
+        assert info.nonce == 5
+        assert info.threshold == 2
+        assert len(info.owners) == 3
+        assert info.version == "1.3.0"
+
+
+def test_get_creation_info(service):
+    safe_address = "0xSafeAddress"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/safes/{safe_address}/creation/",
+            json={
+                "created": "2023-01-01T00:00:00Z",
+                "creator": "0xCreator",
+                "transactionHash": "0xTxHash",
+                "factoryAddress": "0xFactory",
+                "masterCopy": "0xMasterCopy",
+                "setupData": "0xSetupData",
+            },
+        )
+        creation = service.get_creation_info(safe_address)
+        assert creation.creator == "0xCreator"
+        assert creation.transaction_hash == "0xTxHash"
+        assert creation.factory_address == "0xFactory"
+
+
+def test_get_collectibles(service):
+    safe_address = "0xSafeAddress"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/safes/{safe_address}/collectibles/?trusted=false&exclude_spam=true",
+            json=[
+                {
+                    "address": "0xNFTContract",
+                    "tokenName": "Cool NFT",
+                    "tokenSymbol": "CNFT",
+                    "logoUri": "https://example.com/logo.png",
+                    "id": "1",
+                    "uri": "https://example.com/token/1",
+                    "name": "Cool NFT #1",
+                    "description": "A very cool NFT",
+                    "imageUri": "https://example.com/image.png",
+                    "metadata": {"trait": "rare"},
+                }
+            ],
+        )
+        collectibles = service.get_collectibles(safe_address)
+        assert len(collectibles) == 1
+        assert collectibles[0].token_name == "Cool NFT"
+        assert collectibles[0].id == "1"
+
+
+def test_get_delegates(service):
+    safe_address = "0xSafeAddress"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/delegates/?safe={safe_address}",
+            json={
+                "results": [
+                    {
+                        "safe": safe_address,
+                        "delegate": "0xDelegate",
+                        "delegator": "0xDelegator",
+                        "label": "My Delegate",
+                    }
+                ]
+            },
+        )
+        delegates = service.get_delegates(safe_address)
+        assert len(delegates) == 1
+        assert delegates[0].delegate == "0xDelegate"
+        assert delegates[0].label == "My Delegate"
+
+
+def test_add_delegate(service):
+    safe_address = "0xSafeAddress"
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://safe-transaction-mainnet.safe.global/v1/delegates/",
+            status_code=201,
+        )
+        service.add_delegate(
+            safe_address=safe_address,
+            delegate_address="0xDelegate",
+            delegator="0xDelegator",
+            label="My Delegate",
+            signature="0xSig",
+        )
+        assert m.called
+        assert m.last_request.json()["delegate"] == "0xDelegate"
+        assert m.last_request.json()["label"] == "My Delegate"
+
+
+def test_remove_delegate(service):
+    delegate_address = "0xDelegate"
+    with requests_mock.Mocker() as m:
+        m.delete(
+            f"https://safe-transaction-mainnet.safe.global/v1/delegates/{delegate_address}/",
+            status_code=204,
+        )
+        service.remove_delegate(
+            delegate_address=delegate_address,
+            delegator="0xDelegator",
+            signature="0xSig",
+        )
+        assert m.called
+        assert m.last_request.json()["delegator"] == "0xDelegator"
