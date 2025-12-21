@@ -220,3 +220,20 @@ class SafeDelegateResponse(BaseModel):
     delegate: str
     delegator: str
     label: str
+
+
+class SafeTokenResponse(BaseModel):
+    """Information about a Token."""
+
+    address: str
+    name: str
+    symbol: str
+    decimals: int
+    logo_uri: str | None = Field(alias="logoUri")
+
+
+class SafeDataDecoderResponse(BaseModel):
+    """Decoded data from the Safe Transaction Service."""
+
+    method: str
+    parameters: list[dict[str, Any]] | None

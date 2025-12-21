@@ -379,3 +379,72 @@ def test_remove_delegate(service):
         )
         assert m.called
         assert m.last_request.json()["delegator"] == "0xDelegator"
+
+
+def test_get_tokens(service):
+    with requests_mock.Mocker() as m:
+        m.get(
+            "https://safe-transaction-mainnet.safe.global/v1/tokens/",
+            json={
+                "results": [
+                    {
+                        "address": "0xToken1",
+                        "name": "Token 1",
+                        "symbol": "TKN1",
+                        "decimals": 18,
+                        "logoUri": "https://example.com/logo1.png",
+                    },
+                    {
+                        "address": "0xToken2",
+                        "name": "Token 2",
+                        "symbol": "TKN2",
+                        "decimals": 6,
+                        "logoUri": None,
+                    },
+                ]
+            },
+        )
+        tokens = service.get_tokens()
+        assert len(tokens) == 2
+        assert tokens[0].address == "0xToken1"
+        assert tokens[0].name == "Token 1"
+        assert tokens[0].decimals == 18
+        assert tokens[1].logo_uri is None
+
+
+def test_get_token(service):
+    token_address = "0xToken"
+    with requests_mock.Mocker() as m:
+        m.get(
+            f"https://safe-transaction-mainnet.safe.global/v1/tokens/{token_address}/",
+            json={
+                "address": token_address,
+                "name": "Token",
+                "symbol": "TKN",
+                "decimals": 18,
+                "logoUri": "https://example.com/logo.png",
+            },
+        )
+        token = service.get_token(token_address)
+        assert token.address == token_address
+        assert token.symbol == "TKN"
+        assert token.decimals == 18
+
+
+def test_decode_data(service):
+    data = "0x123456"
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://safe-transaction-mainnet.safe.global/v1/data-decoder/",
+            json={
+                "method": "transfer",
+                "parameters": [
+                    {"name": "to", "type": "address", "value": "0xRecipient"},
+                    {"name": "value", "type": "uint256", "value": "100"},
+                ],
+            },
+        )
+        decoded = service.decode_data(data)
+        assert decoded.method == "transfer"
+        assert len(decoded.parameters) == 2
+        assert decoded.parameters[0]["value"] == "0xRecipient"

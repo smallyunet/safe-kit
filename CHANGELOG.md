@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.9] - 2025-12-21
+
+### Added
+- **Token Info**: Added `get_tokens` and `get_token` to `SafeServiceClient` to fetch supported tokens and token details.
+- **Data Decoding**: Added `decode_data` to `SafeServiceClient` to decode transaction data.
+
 ## [0.0.8] - 2025-12-21
 
 ### Added

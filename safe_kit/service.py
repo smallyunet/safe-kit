@@ -7,12 +7,14 @@ from safe_kit.types import (
     SafeBalanceResponse,
     SafeCollectibleResponse,
     SafeCreationInfoResponse,
+    SafeDataDecoderResponse,
     SafeDelegateResponse,
     SafeIncomingTransactionResponse,
     SafeInfoResponse,
     SafeModuleTransactionResponse,
     SafeMultisigTransactionResponse,
     SafeServiceInfo,
+    SafeTokenResponse,
     SafeTransactionData,
 )
 
@@ -300,3 +302,32 @@ class SafeServiceClient:
         }
         response = requests.delete(url, json=payload)
         self._handle_response(response)
+
+    def get_tokens(self) -> list[SafeTokenResponse]:
+        """
+        Returns the list of ERC20 tokens supported by the Safe Transaction Service.
+        """
+        url = f"{self.service_url}/v1/tokens/"
+        response = requests.get(url)
+        data = self._handle_response(response)
+        results = data.get("results", [])
+        return [SafeTokenResponse(**item) for item in results]
+
+    def get_token(self, token_address: str) -> SafeTokenResponse:
+        """
+        Returns information about a specific token.
+        """
+        url = f"{self.service_url}/v1/tokens/{token_address}/"
+        response = requests.get(url)
+        data = self._handle_response(response)
+        return SafeTokenResponse(**data)
+
+    def decode_data(self, data: str) -> SafeDataDecoderResponse:
+        """
+        Decodes transaction data using the Safe Transaction Service.
+        """
+        url = f"{self.service_url}/v1/data-decoder/"
+        payload = {"data": data}
+        response = requests.post(url, json=payload)
+        data_json = self._handle_response(response)
+        return SafeDataDecoderResponse(**data_json)
