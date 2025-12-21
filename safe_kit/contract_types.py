@@ -16,8 +16,10 @@ class SafeExecTransactionParams(TypedDict):
     refundReceiver: str
     signatures: bytes
 
+
 class SafeApproveHashParams(TypedDict):
     hashToApprove: bytes
+
 
 class SafeGetTransactionHashParams(TypedDict):
     to: str
@@ -31,6 +33,7 @@ class SafeGetTransactionHashParams(TypedDict):
     refundReceiver: str
     _nonce: int
 
+
 class SafeRequiredTxGasParams(TypedDict):
     to: str
     value: int
@@ -43,8 +46,10 @@ class SafeRequiredTxGasParams(TypedDict):
     refundReceiver: str
     signatures: bytes
 
+
 class SafeIsOwnerParams(TypedDict):
     owner: str
+
 
 class SafeSetupParams(TypedDict):
     _owners: list[str]
@@ -56,57 +61,71 @@ class SafeSetupParams(TypedDict):
     payment: int
     paymentReceiver: str
 
+
 class SafeAddOwnerWithThresholdParams(TypedDict):
     owner: str
     _threshold: int
+
 
 class SafeRemoveOwnerParams(TypedDict):
     prevOwner: str
     owner: str
     _threshold: int
 
+
 class SafeSwapOwnerParams(TypedDict):
     prevOwner: str
     oldOwner: str
     newOwner: str
 
+
 class SafeChangeThresholdParams(TypedDict):
     _threshold: int
 
+
 class SafeEnableModuleParams(TypedDict):
     module: str
+
 
 class SafeDisableModuleParams(TypedDict):
     prevModule: str
     module: str
 
+
 class SafeGetModulesPaginatedParams(TypedDict):
     start: str
     pageSize: int
 
+
 class SafeIsModuleEnabledParams(TypedDict):
     module: str
+
 
 class SafeCheckSignaturesParams(TypedDict):
     dataHash: bytes
     data: bytes
     signatures: bytes
 
+
 class SafeSetGuardParams(TypedDict):
     guard: str
 
+
 class SafeSetFallbackHandlerParams(TypedDict):
     handler: str
+
 
 class SafeProxyFactoryCreateProxyWithNonceParams(TypedDict):
     _singleton: str
     initializer: bytes
     saltNonce: int
 
+
 class SafeProxyFactoryCreateChainSpecificProxyWithNonceParams(TypedDict):
     _singleton: str
     initializer: bytes
     saltNonce: int
+
 
 class SafeProxyFactoryCreateProxyWithCallbackParams(TypedDict):
     _singleton: str
@@ -114,17 +133,19 @@ class SafeProxyFactoryCreateProxyWithCallbackParams(TypedDict):
     saltNonce: int
     callback: str
 
+
 class Erc20TransferParams(TypedDict):
     _to: str
     _value: int
+
 
 class Erc721SafeTransferFromParams(TypedDict):
     from_: str
     to: str
     tokenId: int
 
+
 class Erc721TransferFromParams(TypedDict):
     from_: str
     to: str
     tokenId: int
-

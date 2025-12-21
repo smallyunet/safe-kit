@@ -18,6 +18,7 @@ def load_bytecode(filename: str) -> str:
         raise FileNotFoundError(f"Bytecode file not found: {filepath}")
     return filepath.read_text().strip()
 
+
 def wait_for_node(w3, attempts=10, delay=1):
     for _ in range(attempts):
         if w3.is_connected():
@@ -25,14 +26,15 @@ def wait_for_node(w3, attempts=10, delay=1):
         time.sleep(delay)
     return False
 
+
 def deploy_contracts():
     print("Connecting to Anvil node...")
     w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
-    
+
     if not wait_for_node(w3):
         print("Error: Could not connect to Anvil node.")
         exit(1)
-    
+
     print("Connected. Deploying contracts via anvil_setCode...")
 
     # Load bytecodes from files
@@ -68,6 +70,7 @@ def deploy_contracts():
         print(f"Factory Code Length: {len(code_factory)}")
         print(f"Singleton Code Length: {len(code_singleton)}")
         exit(1)
+
 
 if __name__ == "__main__":
     deploy_contracts()
