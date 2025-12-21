@@ -53,7 +53,7 @@ class SafeServiceClient:
         Proposes a transaction to the Safe Transaction Service.
         """
         url = f"{self.service_url}/v1/safes/{safe_address}/multisig-transactions/"
-        
+
         payload = {
             "to": safe_tx_data.to,
             "value": safe_tx_data.value,
@@ -70,7 +70,7 @@ class SafeServiceClient:
             "signature": signature,
             "origin": origin,
         }
-        
+
         response = requests.post(url, json=payload)
         self._handle_response(response)
 
@@ -129,7 +129,7 @@ class SafeServiceClient:
             f"{self.service_url}/v1/multisig-transactions/{safe_tx_hash}/confirmations/"
         )
         payload = {"signature": signature}
-        
+
         response = requests.post(url, json=payload)
         self._handle_response(response)
 
