@@ -83,4 +83,3 @@ class ModuleManagerMixin:
         return self.create_transaction(
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
-

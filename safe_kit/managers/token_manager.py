@@ -98,4 +98,3 @@ class TokenManagerMixin:
                 operation=1,  # DelegateCall
             )
         )
-
