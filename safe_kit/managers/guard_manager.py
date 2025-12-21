@@ -15,7 +15,7 @@ class GuardManagerMixin:
     Mixin class providing guard and fallback handler management functionality.
     """
 
-    def get_guard(self: "Safe") -> str:
+    def get_guard(self: "Safe") -> str:  # type: ignore[misc]
         """
         Returns the guard address of the Safe.
         """
@@ -25,7 +25,7 @@ class GuardManagerMixin:
         # Convert bytes to address (last 20 bytes)
         return "0x" + data.hex()[-40:]
 
-    def create_set_guard_transaction(
+    def create_set_guard_transaction(  # type: ignore[misc]
         self: "Safe", guard_address: str
     ) -> SafeTransaction:
         """
@@ -37,7 +37,7 @@ class GuardManagerMixin:
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
 
-    def get_fallback_handler(self: "Safe") -> str:
+    def get_fallback_handler(self: "Safe") -> str:  # type: ignore[misc]
         """
         Returns the fallback handler address of the Safe.
         """
@@ -46,7 +46,7 @@ class GuardManagerMixin:
         data = self.eth_adapter.get_storage_at(self.safe_address, slot)
         return "0x" + data.hex()[-40:]
 
-    def create_set_fallback_handler_transaction(
+    def create_set_fallback_handler_transaction(  # type: ignore[misc]
         self: "Safe", handler_address: str
     ) -> SafeTransaction:
         """
@@ -59,3 +59,4 @@ class GuardManagerMixin:
         return self.create_transaction(
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
+

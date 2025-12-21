@@ -1,11 +1,21 @@
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+from eth_typing import ChecksumAddress
 from web3 import Web3
+from web3.types import RPCEndpoint
+
+if TYPE_CHECKING:
+    from web3 import Web3 as Web3Type
 
 # Addresses expected by safe-kit tests (Gnosis Safe v1.3.0)
-SAFE_SINGLETON_ADDRESS = "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
-SAFE_PROXY_FACTORY_ADDRESS = "0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2"
+SAFE_SINGLETON_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
+    "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+)
+SAFE_PROXY_FACTORY_ADDRESS: ChecksumAddress = Web3.to_checksum_address(
+    "0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2"
+)
 
 # Bytecodes directory
 BYTECODES_DIR = Path(__file__).parent / "bytecodes"
@@ -19,7 +29,7 @@ def load_bytecode(filename: str) -> str:
     return filepath.read_text().strip()
 
 
-def wait_for_node(w3, attempts=10, delay=1):
+def wait_for_node(w3: "Web3Type", attempts: int = 10, delay: int = 1) -> bool:
     for _ in range(attempts):
         if w3.is_connected():
             return True
@@ -27,7 +37,7 @@ def wait_for_node(w3, attempts=10, delay=1):
     return False
 
 
-def deploy_contracts():
+def deploy_contracts() -> None:
     print("Connecting to Anvil node...")
     w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 
@@ -44,7 +54,8 @@ def deploy_contracts():
     # Deploy Proxy Factory
     print(f"Setting code for Proxy Factory at {SAFE_PROXY_FACTORY_ADDRESS}")
     success = w3.provider.make_request(
-        "anvil_setCode", [SAFE_PROXY_FACTORY_ADDRESS, proxy_factory_bytecode]
+        RPCEndpoint("anvil_setCode"),
+        [SAFE_PROXY_FACTORY_ADDRESS, proxy_factory_bytecode],
     )
     if not success:
         print("Failed to set code for Proxy Factory")
@@ -53,7 +64,8 @@ def deploy_contracts():
     # Deploy Safe Singleton
     print(f"Setting code for Safe Singleton at {SAFE_SINGLETON_ADDRESS}")
     success = w3.provider.make_request(
-        "anvil_setCode", [SAFE_SINGLETON_ADDRESS, safe_singleton_bytecode]
+        RPCEndpoint("anvil_setCode"),
+        [SAFE_SINGLETON_ADDRESS, safe_singleton_bytecode],
     )
     if not success:
         print("Failed to set code for Safe Singleton")

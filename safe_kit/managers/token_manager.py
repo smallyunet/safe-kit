@@ -15,7 +15,7 @@ class TokenManagerMixin:
     Mixin class providing token transfer functionality.
     """
 
-    def create_erc20_transfer_transaction(
+    def create_erc20_transfer_transaction(  # type: ignore[misc]
         self: "Safe", token_address: str, to: str, amount: int
     ) -> SafeTransaction:
         """
@@ -31,7 +31,7 @@ class TokenManagerMixin:
             SafeTransactionData(to=token_address, value=0, data=data, operation=0)
         )
 
-    def create_erc721_transfer_transaction(
+    def create_erc721_transfer_transaction(  # type: ignore[misc]
         self: "Safe", token_address: str, to: str, token_id: int
     ) -> SafeTransaction:
         """
@@ -49,7 +49,7 @@ class TokenManagerMixin:
             SafeTransactionData(to=token_address, value=0, data=data, operation=0)
         )
 
-    def create_native_transfer_transaction(
+    def create_native_transfer_transaction(  # type: ignore[misc]
         self: "Safe", to: str, amount: int
     ) -> SafeTransaction:
         """
@@ -59,7 +59,7 @@ class TokenManagerMixin:
             SafeTransactionData(to=to, value=amount, data="0x", operation=0)
         )
 
-    def create_rejection_transaction(self: "Safe", nonce: int) -> SafeTransaction:
+    def create_rejection_transaction(self: "Safe", nonce: int) -> SafeTransaction:  # type: ignore[misc]
         """
         Creates a transaction to reject a pending transaction (by reusing the nonce).
         """
@@ -69,7 +69,7 @@ class TokenManagerMixin:
             )
         )
 
-    def create_multi_send_transaction(
+    def create_multi_send_transaction(  # type: ignore[misc]
         self: "Safe",
         transactions: list[SafeTransactionData],
         multi_send_address: str,
@@ -98,3 +98,4 @@ class TokenManagerMixin:
                 operation=1,  # DelegateCall
             )
         )
+

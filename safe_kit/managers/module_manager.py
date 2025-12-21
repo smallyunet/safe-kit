@@ -15,7 +15,7 @@ class ModuleManagerMixin:
     Mixin class providing module management functionality.
     """
 
-    def get_modules(self: "Safe") -> list[str]:
+    def get_modules(self: "Safe") -> list[str]:  # type: ignore[misc]
         """
         Returns the modules enabled on the Safe.
         """
@@ -39,7 +39,7 @@ class ModuleManagerMixin:
 
         return modules
 
-    def is_module_enabled(self: "Safe", module_address: str) -> bool:
+    def is_module_enabled(self: "Safe", module_address: str) -> bool:  # type: ignore[misc]
         """
         Checks if a module is enabled on the Safe.
         """
@@ -47,7 +47,7 @@ class ModuleManagerMixin:
             bool, self.contract.functions.isModuleEnabled(module_address).call()
         )
 
-    def create_enable_module_transaction(
+    def create_enable_module_transaction(  # type: ignore[misc]
         self: "Safe", module_address: str
     ) -> SafeTransaction:
         """
@@ -59,7 +59,7 @@ class ModuleManagerMixin:
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
 
-    def create_disable_module_transaction(
+    def create_disable_module_transaction(  # type: ignore[misc]
         self: "Safe", module_address: str
     ) -> SafeTransaction:
         """
@@ -83,3 +83,4 @@ class ModuleManagerMixin:
         return self.create_transaction(
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
+

@@ -15,7 +15,7 @@ class OwnerManagerMixin:
     Mixin class providing owner management functionality.
     """
 
-    def _get_previous_owner(self: "Safe", owner: str) -> str:
+    def _get_previous_owner(self: "Safe", owner: str) -> str:  # type: ignore[misc]
         """
         Get the previous owner in the linked list for removal/swap operations.
         """
@@ -29,7 +29,7 @@ class OwnerManagerMixin:
             return "0x0000000000000000000000000000000000000001"  # Sentinel
         return owners[index - 1]
 
-    def create_add_owner_transaction(
+    def create_add_owner_transaction(  # type: ignore[misc]
         self: "Safe", owner: str, threshold: int | None = None
     ) -> SafeTransaction:
         """
@@ -46,7 +46,7 @@ class OwnerManagerMixin:
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
 
-    def create_remove_owner_transaction(
+    def create_remove_owner_transaction(  # type: ignore[misc]
         self: "Safe", owner: str, threshold: int | None = None
     ) -> SafeTransaction:
         """
@@ -65,7 +65,7 @@ class OwnerManagerMixin:
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
 
-    def create_swap_owner_transaction(
+    def create_swap_owner_transaction(  # type: ignore[misc]
         self: "Safe", old_owner: str, new_owner: str
     ) -> SafeTransaction:
         """
@@ -81,7 +81,7 @@ class OwnerManagerMixin:
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
 
-    def create_change_threshold_transaction(
+    def create_change_threshold_transaction(  # type: ignore[misc]
         self: "Safe", threshold: int
     ) -> SafeTransaction:
         """
@@ -92,3 +92,4 @@ class OwnerManagerMixin:
         return self.create_transaction(
             SafeTransactionData(to=self.safe_address, value=0, data=data, operation=0)
         )
+

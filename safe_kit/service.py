@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 import requests
 
@@ -149,7 +149,7 @@ class SafeServiceClient:
         url = f"{self.service_url}/v1/owners/{owner_address}/safes/"
         response = requests.get(url)
         data = self._handle_response(response)
-        return data.get("safes", [])
+        return cast(list[str], data.get("safes", []))
 
     def get_balances(
         self, safe_address: str, trusted: bool = False, exclude_spam: bool = True

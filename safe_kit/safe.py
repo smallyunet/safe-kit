@@ -77,7 +77,7 @@ class Safe(
         """
         Returns the version of the Safe contract.
         """
-        return self.contract.functions.VERSION().call()
+        return cast(str, self.contract.functions.VERSION().call())
 
     def get_balance(self) -> int:
         """
@@ -171,7 +171,7 @@ class Safe(
             "gasPrice": safe_transaction.data.gas_price,
             "gasToken": safe_transaction.data.gas_token,
             "refundReceiver": safe_transaction.data.refund_receiver,
-            "_nonce": safe_transaction.data.nonce,
+            "_nonce": safe_transaction.data.nonce if safe_transaction.data.nonce is not None else 0,
         }
 
         return cast(
