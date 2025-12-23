@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.11] - 2025-12-23
+
+### Added
+- **Pre-validated Signatures**: Added `add_prevalidated_signature` to `Safe` class for signatures where `v=1`.
+- **Transaction Simulation**: Added `simulate_transaction` to `Safe` class to test execution success without sending a transaction.
+- **Improved Signature Management**: Added `add_signature` helper to `Safe` class for manual signature management.
+
 ## [0.0.10] - 2025-12-23
 
 ### Added

@@ -159,6 +159,35 @@ class Safe(
         safe_transaction.add_signature(signer_address, signature)
         return safe_transaction
 
+    def add_signature(
+        self, safe_transaction: SafeTransaction, owner_address: str, signature: str
+    ) -> SafeTransaction:
+        """
+        Adds a signature to a Safe transaction.
+        """
+        owner_address = self.eth_adapter.to_checksum_address(owner_address)
+        safe_transaction.add_signature(owner_address, signature)
+        return safe_transaction
+
+    def add_prevalidated_signature(
+        self, safe_transaction: SafeTransaction, owner_address: str
+    ) -> SafeTransaction:
+        """
+        Adds a pre-validated signature for a given owner.
+        v=1, r=owner, s=0.
+        """
+        owner_address = self.eth_adapter.to_checksum_address(owner_address)
+        # Signature: r(32) + s(32) + v(1)
+        # r = owner address, padded to 32 bytes
+        # s = 0, padded to 32 bytes
+        # v = 1
+        r = owner_address.lower().replace("0x", "").zfill(64)
+        s = "0" * 64
+        v = "01"
+        signature = "0x" + r + s + v
+        safe_transaction.add_signature(owner_address, signature)
+        return safe_transaction
+
     def get_transaction_hash(self, safe_transaction: SafeTransaction) -> str:
         """
         Returns the hash of the Safe transaction.
@@ -226,6 +255,34 @@ class Safe(
             return cast(str, tx_hash.hex())
         except Exception as e:
             raise handle_contract_error(e) from e
+
+    def simulate_transaction(self, safe_transaction: SafeTransaction) -> bool:
+        """
+        Simulates the transaction using eth_call.
+        Returns True if the transaction would succeed, False otherwise.
+        """
+        try:
+            params: SafeExecTransactionParams = {
+                "to": safe_transaction.data.to,
+                "value": safe_transaction.data.value,
+                "data": HexBytes(safe_transaction.data.data),
+                "operation": safe_transaction.data.operation,
+                "safeTxGas": safe_transaction.data.safe_tx_gas,
+                "baseGas": safe_transaction.data.base_gas,
+                "gasPrice": safe_transaction.data.gas_price,
+                "gasToken": safe_transaction.data.gas_token,
+                "refundReceiver": safe_transaction.data.refund_receiver,
+                "signatures": safe_transaction.sorted_signatures_bytes,
+            }
+
+            # Use call() to simulate
+            success = self.contract.functions.execTransaction(**params).call(
+                {"from": self.eth_adapter.get_signer_address()}
+            )
+
+            return cast(bool, success)
+        except Exception:
+            return False
 
     def estimate_transaction_gas(self, safe_transaction: SafeTransaction) -> int:
         """

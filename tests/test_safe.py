@@ -366,3 +366,40 @@ def test_sign_transaction_eth_sign_manual(safe, mock_adapter, mock_contract):
     # v should be 27 + 4 = 31 (0x1f)
     expected_sig = "00" * 32 + "00" * 32 + "1f"
     assert signed_tx.signatures["0xSigner"] == expected_sig
+
+
+def test_add_prevalidated_signature(safe):
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+    owner = "0xOwner1"
+    safe.add_prevalidated_signature(tx, owner)
+
+    # r = owner address padded, s = 0, v = 1
+    expected_sig = "0x" + owner.lower().replace("0x", "").zfill(64) + "0" * 64 + "01"
+    assert tx.signatures[owner] == expected_sig
+
+
+def test_simulate_transaction_success(safe, mock_contract):
+    mock_contract.functions.execTransaction.return_value.call.return_value = True
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+
+    result = safe.simulate_transaction(tx)
+    assert result is True
+    mock_contract.functions.execTransaction.assert_called_once()
+
+
+def test_simulate_transaction_failure(safe, mock_contract):
+    mock_contract.functions.execTransaction.return_value.call.return_value = False
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+
+    result = safe.simulate_transaction(tx)
+    assert result is False
+
+
+def test_simulate_transaction_exception(safe, mock_contract):
+    mock_contract.functions.execTransaction.return_value.call.side_effect = Exception(
+        "error"
+    )
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+
+    result = safe.simulate_transaction(tx)
+    assert result is False
