@@ -293,10 +293,11 @@ class Safe(
 
         message_hash = keccak(message_bytes)
 
-        return cast(
-            str,
-            self.contract.functions.getMessageHash(message_hash).call().hex(),
-        )
+        result = self.contract.functions.getMessageHash(message_hash).call().hex()
+        # Remove 0x prefix if present for consistency
+        if result.startswith("0x"):
+            result = result[2:]
+        return cast(str, result)
 
     def sign_message(self, message: str | bytes) -> str:
         """
@@ -321,6 +322,6 @@ class Safe(
             result = self.contract.functions.isValidSignature(
                 message_hash, signature
             ).call()
-            return result.hex() == EIP1271_MAGIC_VALUE.replace("0x", "")
+            return result.hex() == EIP1271_MAGIC_VALUE
         except Exception:
             return False
