@@ -58,6 +58,10 @@ class EthAdapter(ABC):
     def to_checksum_address(self, address: str) -> str:
         pass
 
+    @abstractmethod
+    def wait_for_transaction_receipt(self, tx_hash: str, timeout: int = 120) -> Any:
+        pass
+
 
 class Web3Adapter(EthAdapter):
     """
@@ -134,3 +138,6 @@ class Web3Adapter(EthAdapter):
 
     def to_checksum_address(self, address: str) -> str:
         return self.web3.to_checksum_address(address)
+
+    def wait_for_transaction_receipt(self, tx_hash: str, timeout: int = 120) -> Any:
+        return self.web3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)

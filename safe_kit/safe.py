@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from hexbytes import HexBytes
 
@@ -18,6 +18,9 @@ from safe_kit.managers import (
     TokenManagerMixin,
 )
 from safe_kit.types import SafeTransaction, SafeTransactionData
+
+
+EIP1271_MAGIC_VALUE = "0x1626ba7e"
 
 
 class Safe(
@@ -260,3 +263,64 @@ class Safe(
             HexBytes(safe_transaction.data.data),
             safe_transaction.sorted_signatures_bytes,
         ).call()
+
+    def wait_for_transaction(self, tx_hash: str, timeout: int = 120) -> Any:
+        """
+        Waits for a transaction receipt.
+        """
+        return self.eth_adapter.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+
+    def get_domain_separator(self) -> str:
+        """
+        Returns the EIP-712 domain separator of the Safe.
+        """
+        return cast(str, self.contract.functions.domainSeparator().call().hex())
+
+    def get_message_hash(self, message: str | bytes) -> str:
+        """
+        Returns the safe message hash for a given message.
+        """
+        if isinstance(message, str):
+            if message.startswith("0x"):
+                message_bytes = HexBytes(message)
+            else:
+                message_bytes = message.encode("utf-8")
+        else:
+            message_bytes = message
+
+        # keccak256(message)
+        from eth_hash.auto import keccak
+
+        message_hash = keccak(message_bytes)
+
+        return cast(
+            str,
+            self.contract.functions.getMessageHash(message_hash).call().hex(),
+        )
+
+    def sign_message(self, message: str | bytes) -> str:
+        """
+        Signs a message hash using the current signer.
+        Returns the signature using eth_sign (EIP-191).
+        """
+        message_hash = self.get_message_hash(message)
+        return self.eth_adapter.sign_message(message_hash)
+
+    def is_valid_signature(self, message_hash: str | bytes, signature: str | bytes) -> bool:
+        """
+        Checks if a signature is valid for a given message hash using EIP-1271.
+        """
+        if isinstance(message_hash, str):
+            message_hash = HexBytes(message_hash)
+        if isinstance(signature, str):
+            signature = HexBytes(signature)
+
+        try:
+            # isValidSignature(bytes32 _data, bytes memory _signature)
+            # returns (bytes4)
+            result = self.contract.functions.isValidSignature(
+                message_hash, signature
+            ).call()
+            return result.hex() == EIP1271_MAGIC_VALUE.replace("0x", "")
+        except Exception:
+            return False

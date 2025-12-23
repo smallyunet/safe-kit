@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.10] - 2025-12-23
+
+### Added
+- **Message Signing**: Added `sign_message` and `get_message_hash` to `Safe` class for EIP-191 message signing.
+- **Signature Validation**: Added `is_valid_signature` to `Safe` class for EIP-1271 signature verification.
+- **Transaction Waiting**: Added `wait_for_transaction` to `Safe` class and `wait_for_transaction_receipt` to adapters.
+- **Transaction Deletion**: Added `delete_transaction` to `SafeServiceClient` to remove pending transactions.
+
 ## [0.0.9] - 2025-12-21
 
 ### Added

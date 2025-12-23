@@ -139,6 +139,16 @@ class SafeServiceClient:
         response = requests.post(url, json=payload)
         self._handle_response(response)
 
+    def delete_transaction(self, safe_tx_hash: str, signature: str) -> None:
+        """
+        Deletes a pending transaction from the Safe Transaction Service.
+        Requires the signature of the proposer.
+        """
+        url = f"{self.service_url}/v1/multisig-transactions/{safe_tx_hash}/"
+        payload = {"signature": signature}
+        response = requests.delete(url, json=payload)
+        self._handle_response(response)
+
     def get_transaction(self, safe_tx_hash: str) -> SafeMultisigTransactionResponse:
         """
         Returns the details of a specific Safe transaction.

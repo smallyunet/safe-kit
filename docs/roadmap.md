@@ -14,7 +14,8 @@ Focus on implementing core functionalities and ensuring the library is usable fo
 - **v0.0.6** (Released): Enhanced Safe Transaction Service client (history), Chain ID validation, and automated PyPI publishing.
 - **v0.0.7** (Released): Safe version awareness, extended service client queries, and improved address validation.
 - **v0.0.8** (Released): Extended Service Client with Safe info, creation info, collectibles (NFTs), and delegates management.
-- **v0.0.9** (In Progress): Extended Service Client with Token info and Data Decoding.
+- **v0.0.9** (Released): Extended Service Client with Token info and Data Decoding.
+- **v0.0.10** (In Progress): Message signing (EIP-191), Signature validation (EIP-1271), and robust transaction handling.
 
 ### v0.1.x (Beta)
 Focus on stability, comprehensive testing, and developer experience improvements.
@@ -54,8 +55,9 @@ Production-ready release with stable API and full feature parity.
 
 - [x] **EIP-712 Signatures**: Standard Safe signature format.
 - [x] **`eth_sign` Support**: Legacy signature support.
+- [x] **EIP-191 Message Signing**: Sign arbitrary messages (`sign_message`).
 - [x] **On-chain Approval**: `approveHash` for smart contract wallets.
-- [x] **Signature Validation**: Off-chain validation via `checkSignatures`.
+- [x] **Signature Validation**: Off-chain validation via `checkSignatures` and EIP-1271 (`isValidSignature`).
 - [x] **Gas Estimation**: Automatic `safeTxGas` calculation.
 
 ### 5. Advanced Features
