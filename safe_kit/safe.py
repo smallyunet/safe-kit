@@ -324,6 +324,6 @@ class Safe(
             result = self.contract.functions.isValidSignature(
                 message_hash, signature
             ).call()
-            return bool(result.hex() == EIP1271_MAGIC_VALUE)
+            return HexBytes(result) == HexBytes(EIP1271_MAGIC_VALUE)
         except Exception:
             return False
