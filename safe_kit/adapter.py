@@ -140,4 +140,8 @@ class Web3Adapter(EthAdapter):
         return self.web3.to_checksum_address(address)
 
     def wait_for_transaction_receipt(self, tx_hash: str, timeout: int = 120) -> Any:
-        return self.web3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+        from hexbytes import HexBytes
+
+        return self.web3.eth.wait_for_transaction_receipt(
+            HexBytes(tx_hash), timeout=timeout
+        )

@@ -19,7 +19,6 @@ from safe_kit.managers import (
 )
 from safe_kit.types import SafeTransaction, SafeTransactionData
 
-
 EIP1271_MAGIC_VALUE = "0x1626ba7e"
 
 
@@ -284,9 +283,11 @@ class Safe(
             if message.startswith("0x"):
                 message_bytes = HexBytes(message)
             else:
-                message_bytes = message.encode("utf-8")
+                message_bytes = HexBytes(message.encode("utf-8"))
+        elif isinstance(message, bytes):
+            message_bytes = HexBytes(message)
         else:
-            message_bytes = message
+            raise TypeError("message must be str or bytes")
 
         # keccak256(message)
         from eth_hash.auto import keccak
@@ -294,9 +295,8 @@ class Safe(
         message_hash = keccak(message_bytes)
 
         result = self.contract.functions.getMessageHash(message_hash).call().hex()
-        # Remove 0x prefix if present for consistency
-        if result.startswith("0x"):
-            result = result[2:]
+        if not result.startswith("0x"):
+            result = "0x" + result
         return cast(str, result)
 
     def sign_message(self, message: str | bytes) -> str:
@@ -307,7 +307,9 @@ class Safe(
         message_hash = self.get_message_hash(message)
         return self.eth_adapter.sign_message(message_hash)
 
-    def is_valid_signature(self, message_hash: str | bytes, signature: str | bytes) -> bool:
+    def is_valid_signature(
+        self, message_hash: str | bytes, signature: str | bytes
+    ) -> bool:
         """
         Checks if a signature is valid for a given message hash using EIP-1271.
         """
@@ -322,6 +324,6 @@ class Safe(
             result = self.contract.functions.isValidSignature(
                 message_hash, signature
             ).call()
-            return result.hex() == EIP1271_MAGIC_VALUE
+            return bool(result.hex() == EIP1271_MAGIC_VALUE)
         except Exception:
             return False
