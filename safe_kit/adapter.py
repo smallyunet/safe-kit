@@ -95,14 +95,15 @@ class Web3Adapter(EthAdapter):
             return str(self.signer.address)
         return None
 
-    def sign_message(self, message: str) -> str:
+    def sign_message(self, message: str | bytes) -> str:
         if not self.signer:
             raise ValueError("No signer available")
 
         from eth_account.messages import encode_defunct
 
-        # Check if message is a hex string (likely a hash)
-        if message.startswith("0x"):
+        if isinstance(message, bytes):
+            signable_message = encode_defunct(primitive=message)
+        elif message.startswith("0x"):
             signable_message = encode_defunct(hexstr=message)
         else:
             signable_message = encode_defunct(text=message)

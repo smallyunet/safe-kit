@@ -25,8 +25,9 @@ def mock_contract():
     contract.functions.getThreshold().call.return_value = 2
     contract.functions.getOwners().call.return_value = ["0xOwner1", "0xOwner2"]
     contract.functions.VERSION().call.return_value = "1.3.0"
-    contract.functions.isOwner("0xOwner1").call.return_value = True
-    contract.functions.isOwner("0xNotOwner").call.return_value = False
+    contract.functions.isOwner.side_effect = lambda owner: MagicMock(
+        call=MagicMock(return_value=owner in ["0xOwner1", "0xOwner2"])
+    )
     return contract
 
 
@@ -403,3 +404,58 @@ def test_simulate_transaction_exception(safe, mock_contract):
 
     result = safe.simulate_transaction(tx)
     assert result is False
+
+
+def test_execute_transaction_with_wait(safe, mock_contract, mock_adapter):
+    mock_contract.functions.execTransaction.return_value.transact.return_value = b"tx_hash"
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+
+    safe.execute_transaction(tx, wait_for_receipt=True)
+
+    mock_adapter.wait_for_transaction_receipt.assert_called_with(
+        "74785f68617368", timeout=120
+    )
+
+
+def test_execute_transaction_with_gas(safe, mock_contract):
+    mock_contract.functions.execTransaction.return_value.transact.return_value = b"tx_hash"
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+
+    safe.execute_transaction(tx, gas=500000)
+
+    mock_contract.functions.execTransaction.return_value.transact.assert_called_with(
+        {"from": "0xSigner", "gas": 500000}
+    )
+
+
+def test_estimate_safe_transaction_gas(safe, mock_contract):
+    mock_contract.functions.execTransaction.return_value.estimate_gas.return_value = (
+        100000
+    )
+    tx = safe.create_native_transfer_transaction("0xReceiver", 100)
+
+    gas = safe.estimate_safe_transaction_gas(tx)
+
+    assert gas == 100000
+    mock_contract.functions.execTransaction.return_value.estimate_gas.assert_called_once()
+
+
+def test_create_add_owner_transaction_already_owner(safe):
+    with pytest.raises(ValueError, match="Address 0xOwner1 is already an owner"):
+        safe.create_add_owner_transaction("0xOwner1")
+
+
+def test_create_remove_owner_transaction_not_owner(safe):
+    with pytest.raises(ValueError, match="Address 0xNotOwner is not an owner"):
+        safe.create_remove_owner_transaction("0xNotOwner")
+
+
+def test_create_swap_owner_transaction_not_owner(safe):
+    with pytest.raises(ValueError, match="Address 0xNotOwner is not an owner"):
+        safe.create_swap_owner_transaction("0xNotOwner", "0xNewOwner")
+
+
+def test_create_swap_owner_transaction_already_owner(safe):
+    # Swap 0xOwner2 for 0xOwner1 (who is already an owner)
+    with pytest.raises(ValueError, match="Address 0xOwner1 is already an owner"):
+        safe.create_swap_owner_transaction("0xOwner2", "0xOwner1")

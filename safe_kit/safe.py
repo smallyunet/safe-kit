@@ -227,7 +227,12 @@ class Safe(
         except Exception as e:
             raise handle_contract_error(e) from e
 
-    def execute_transaction(self, safe_transaction: SafeTransaction) -> str:
+    def execute_transaction(
+        self,
+        safe_transaction: SafeTransaction,
+        wait_for_receipt: bool = False,
+        gas: int | None = None,
+    ) -> str:
         """
         Executes a Safe transaction.
         """
@@ -248,11 +253,20 @@ class Safe(
                 "signatures": sorted_signatures,
             }
 
-            tx_hash = self.contract.functions.execTransaction(**params).transact(
-                {"from": self.eth_adapter.get_signer_address()}
+            tx_params: dict[str, Any] = {"from": self.eth_adapter.get_signer_address()}
+            if gas is not None:
+                tx_params["gas"] = gas
+
+            tx_hash_hex = self.contract.functions.execTransaction(**params).transact(
+                tx_params
             )
 
-            return cast(str, tx_hash.hex())
+            tx_hash = cast(str, tx_hash_hex.hex())
+
+            if wait_for_receipt:
+                self.wait_for_transaction(tx_hash)
+
+            return tx_hash
         except Exception as e:
             raise handle_contract_error(e) from e
 
@@ -286,7 +300,8 @@ class Safe(
 
     def estimate_transaction_gas(self, safe_transaction: SafeTransaction) -> int:
         """
-        Estimates the gas required for a Safe transaction.
+        Estimates the internal gas required for a Safe transaction (safeTxGas).
+        Uses the Safe contract's requiredTxGas function.
         """
         params: SafeRequiredTxGasParams = {
             "to": safe_transaction.data.to,
@@ -303,6 +318,31 @@ class Safe(
         return cast(
             int,
             self.contract.functions.requiredTxGas(**params).call(),
+        )
+
+    def estimate_safe_transaction_gas(self, safe_transaction: SafeTransaction) -> int:
+        """
+        Estimates the total gas (ETH gas) required to execute the Safe transaction.
+        Uses eth_estimateGas on the execTransaction function.
+        """
+        params: SafeExecTransactionParams = {
+            "to": safe_transaction.data.to,
+            "value": safe_transaction.data.value,
+            "data": HexBytes(safe_transaction.data.data),
+            "operation": safe_transaction.data.operation,
+            "safeTxGas": safe_transaction.data.safe_tx_gas,
+            "baseGas": safe_transaction.data.base_gas,
+            "gasPrice": safe_transaction.data.gas_price,
+            "gasToken": safe_transaction.data.gas_token,
+            "refundReceiver": safe_transaction.data.refund_receiver,
+            "signatures": safe_transaction.sorted_signatures_bytes,
+        }
+
+        return cast(
+            int,
+            self.contract.functions.execTransaction(**params).estimate_gas(
+                {"from": self.eth_adapter.get_signer_address()}
+            ),
         )
 
     def check_signatures(self, safe_transaction: SafeTransaction) -> None:

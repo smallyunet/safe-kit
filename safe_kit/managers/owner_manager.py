@@ -35,8 +35,8 @@ class OwnerManagerMixin:
         """
         Creates a transaction to add a new owner to the Safe.
         """
-        if threshold is None:
-            threshold = self.get_threshold()
+        if self.is_owner(owner):
+            raise ValueError(f"Address {owner} is already an owner")
 
         data = self.contract.encodeABI(
             fn_name="addOwnerWithThreshold", args=[owner, threshold]
@@ -52,8 +52,8 @@ class OwnerManagerMixin:
         """
         Creates a transaction to remove an owner from the Safe.
         """
-        if threshold is None:
-            threshold = self.get_threshold()
+        if not self.is_owner(owner):
+            raise ValueError(f"Address {owner} is not an owner")
 
         prev_owner = self._get_previous_owner(owner)
 
@@ -71,6 +71,12 @@ class OwnerManagerMixin:
         """
         Creates a transaction to replace an existing owner with a new one.
         """
+        if not self.is_owner(old_owner):
+            raise ValueError(f"Address {old_owner} is not an owner")
+
+        if self.is_owner(new_owner):
+            raise ValueError(f"Address {new_owner} is already an owner")
+
         prev_owner = self._get_previous_owner(old_owner)
 
         data = self.contract.encodeABI(
