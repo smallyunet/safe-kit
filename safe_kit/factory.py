@@ -88,10 +88,24 @@ class SafeFactory:
             ).call(),
         )
 
-    def deploy_safe(self, config: SafeAccountConfig, salt_nonce: int = 0) -> Safe:
+    def deploy_safe(
+        self,
+        config: SafeAccountConfig,
+        salt_nonce: int = 0,
+        wait_for_deployment: bool = False,
+    ) -> Safe:
         """
         Deploys a new Safe contract.
         Returns a Safe instance with the predicted address.
+
+        Args:
+            config: The Safe account configuration.
+            salt_nonce: The salt nonce for address prediction.
+            wait_for_deployment: If True, wait for the deployment transaction
+                to be mined.
+
+        Returns:
+            A Safe instance pointing to the deployed Safe.
         """
         signer = self.eth_adapter.get_signer_address()
         if not signer:
@@ -106,20 +120,35 @@ class SafeFactory:
                 "initializer": initializer,
                 "saltNonce": salt_nonce,
             }
-            self.proxy_factory_contract.functions.createProxyWithNonce(
+            tx_hash = self.proxy_factory_contract.functions.createProxyWithNonce(
                 **params
             ).transact({"from": signer})
+
+            if wait_for_deployment:
+                self.eth_adapter.wait_for_transaction_receipt(tx_hash.hex())
         except Exception as e:
             raise handle_contract_error(e) from e
 
         return Safe(self.eth_adapter, safe_address)
 
     def deploy_safe_v1_4_1(
-        self, config: SafeAccountConfig, salt_nonce: int = 0
+        self,
+        config: SafeAccountConfig,
+        salt_nonce: int = 0,
+        wait_for_deployment: bool = False,
     ) -> Safe:
         """
         Deploys a new Safe contract (v1.4.1).
         Returns a Safe instance with the predicted address.
+
+        Args:
+            config: The Safe account configuration.
+            salt_nonce: The salt nonce for address prediction.
+            wait_for_deployment: If True, wait for the deployment transaction
+                to be mined.
+
+        Returns:
+            A Safe instance pointing to the deployed Safe.
         """
         signer = self.eth_adapter.get_signer_address()
         if not signer:
@@ -134,9 +163,13 @@ class SafeFactory:
                 "initializer": initializer,
                 "saltNonce": salt_nonce,
             }
-            self.proxy_factory_contract.functions.createChainSpecificProxyWithNonce(
+            create_fn = self.proxy_factory_contract.functions
+            tx_hash = create_fn.createChainSpecificProxyWithNonce(
                 **params
             ).transact({"from": signer})
+
+            if wait_for_deployment:
+                self.eth_adapter.wait_for_transaction_receipt(tx_hash.hex())
         except Exception as e:
             raise handle_contract_error(e) from e
 

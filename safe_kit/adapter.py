@@ -62,6 +62,16 @@ class EthAdapter(ABC):
     def wait_for_transaction_receipt(self, tx_hash: str, timeout: int = 120) -> Any:
         pass
 
+    @abstractmethod
+    def send_transaction(self, tx: dict[str, Any]) -> str:
+        """Send a raw transaction and return the transaction hash."""
+        pass
+
+    @abstractmethod
+    def get_block(self, block_identifier: str | int = "latest") -> dict[str, Any]:
+        """Get block information."""
+        pass
+
 
 class Web3Adapter(EthAdapter):
     """
@@ -146,3 +156,16 @@ class Web3Adapter(EthAdapter):
         return self.web3.eth.wait_for_transaction_receipt(
             HexBytes(tx_hash), timeout=timeout
         )
+
+    def send_transaction(self, tx: dict[str, Any]) -> str:
+        """Send a raw transaction and return the transaction hash."""
+        if not self.signer:
+            raise ValueError("No signer available")
+        tx_hash = self.web3.eth.send_transaction(tx)  # type: ignore[arg-type]
+        return tx_hash.hex()
+
+    def get_block(self, block_identifier: str | int = "latest") -> dict[str, Any]:
+        """Get block information."""
+        block = self.web3.eth.get_block(block_identifier)  # type: ignore[arg-type]
+        return dict(block)
+

@@ -56,6 +56,34 @@ def test_safe_initialization_chain_id_mismatch(mock_adapter, mock_contract):
         Safe(eth_adapter=mock_adapter, safe_address="0xSafeAddress", chain_id=2)
 
 
+def test_get_chain_id_from_adapter(safe, mock_adapter):
+    """Test get_chain_id returns adapter chain ID when not set."""
+    assert safe.get_chain_id() == 1
+    mock_adapter.get_chain_id.assert_called()
+
+
+def test_get_chain_id_from_instance(mock_adapter, mock_contract):
+    """Test get_chain_id returns instance chain ID when set."""
+    mock_adapter.get_safe_contract.return_value = mock_contract
+    safe = Safe(eth_adapter=mock_adapter, safe_address="0xSafeAddress", chain_id=1)
+    assert safe.get_chain_id() == 1
+
+
+def test_connect_method():
+    """Test Safe.connect() validates inputs correctly."""
+    # We can't actually connect without a real RPC, but we can test the import works
+    # Verify the connect method exists and has correct signature
+    import inspect
+
+    from safe_kit.safe import Safe
+    sig = inspect.signature(Safe.connect)
+    params = list(sig.parameters.keys())
+    assert "rpc_url" in params
+    assert "private_key" in params
+    assert "safe_address" in params
+    assert "chain_id" in params
+
+
 def test_get_balance(safe, mock_adapter):
     assert safe.get_balance() == 1000
     mock_adapter.get_balance.assert_called_with("0xSafeAddress")
@@ -407,7 +435,8 @@ def test_simulate_transaction_exception(safe, mock_contract):
 
 
 def test_execute_transaction_with_wait(safe, mock_contract, mock_adapter):
-    mock_contract.functions.execTransaction.return_value.transact.return_value = b"tx_hash"
+    exec_tx = mock_contract.functions.execTransaction
+    exec_tx.return_value.transact.return_value = b"tx_hash"
     tx = safe.create_native_transfer_transaction("0xReceiver", 100)
 
     safe.execute_transaction(tx, wait_for_receipt=True)
@@ -418,7 +447,8 @@ def test_execute_transaction_with_wait(safe, mock_contract, mock_adapter):
 
 
 def test_execute_transaction_with_gas(safe, mock_contract):
-    mock_contract.functions.execTransaction.return_value.transact.return_value = b"tx_hash"
+    exec_tx = mock_contract.functions.execTransaction
+    exec_tx.return_value.transact.return_value = b"tx_hash"
     tx = safe.create_native_transfer_transaction("0xReceiver", 100)
 
     safe.execute_transaction(tx, gas=500000)

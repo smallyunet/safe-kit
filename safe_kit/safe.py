@@ -75,6 +75,51 @@ class Safe(
         """
         return self.safe_address
 
+    def get_chain_id(self) -> int:
+        """
+        Returns the chain ID of the connected network.
+        """
+        if self.chain_id is not None:
+            return self.chain_id
+        return self.eth_adapter.get_chain_id()
+
+    @classmethod
+    def connect(
+        cls,
+        rpc_url: str,
+        private_key: str,
+        safe_address: str,
+        chain_id: int | None = None,
+    ) -> "Safe":
+        """
+        Convenience method to connect to a Safe with minimal configuration.
+
+        Args:
+            rpc_url: The RPC URL of the Ethereum node.
+            private_key: The private key of the signer (with or without 0x prefix).
+            safe_address: The address of the Safe contract.
+            chain_id: Optional chain ID for validation.
+
+        Returns:
+            A Safe instance connected to the specified Safe contract.
+
+        Example:
+            safe = Safe.connect(
+                rpc_url="https://mainnet.infura.io/v3/...",
+                private_key="0x...",
+                safe_address="0x..."
+            )
+        """
+        from eth_account import Account
+        from web3 import Web3
+
+        from safe_kit.adapter import Web3Adapter
+
+        w3 = Web3(Web3.HTTPProvider(rpc_url))
+        signer = Account.from_key(private_key)
+        adapter = Web3Adapter(web3=w3, signer=signer)
+        return cls(eth_adapter=adapter, safe_address=safe_address, chain_id=chain_id)
+
     def get_version(self) -> str:
         """
         Returns the version of the Safe contract.

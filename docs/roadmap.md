@@ -15,7 +15,10 @@ Focus on implementing core functionalities and ensuring the library is usable fo
 - **v0.0.7** (Released): Safe version awareness, extended service client queries, and improved address validation.
 - **v0.0.8** (Released): Extended Service Client with Safe info, creation info, collectibles (NFTs), and delegates management.
 - **v0.0.9** (Released): Extended Service Client with Token info and Data Decoding.
-- **v0.0.10** (In Progress): Message signing (EIP-191), Signature validation (EIP-1271), and robust transaction handling.
+- **v0.0.10** (Released): Message signing (EIP-191), Signature validation (EIP-1271), and robust transaction handling.
+- **v0.0.11** (Released): Pre-validated signatures, transaction simulation, and signature helper.
+- **v0.0.12** (Released): Gas estimation, gas control for execution, and improved owner management validation.
+- **v0.0.13** (Released): Chain ID handling (EIP-155), convenience initialization, and factory wait option.
 
 ### v0.1.x (Beta)
 Focus on stability, comprehensive testing, and developer experience improvements.
@@ -80,5 +83,5 @@ Production-ready release with stable API and full feature parity.
 - [x] **Error Handling**: Readable Python exceptions for EVM reverts.
 - [x] **Type Generation**: Auto-generate Python types from Safe ABIs.
 - [x] **CI/CD**: Automated linting, testing, and type checking.
-- [ ] **Chain ID Handling**: Better support for EIP-155.
-- [ ] **Automated Publishing**: Publish to PyPI on release.
+- [x] **Chain ID Handling**: Better support for EIP-155 (Added in v0.0.13).
+- [x] **Automated Publishing**: Publish to PyPI on release.

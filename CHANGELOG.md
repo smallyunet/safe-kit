@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.13] - 2025-01-10
+
+### Added
+- **Chain ID Handling**: Added `get_chain_id` method to `Safe` class for EIP-155 chain ID exposure.
+- **Convenience Initialization**: Added `Safe.connect` class method for one-liner Safe initialization with just RPC URL, private key, and Safe address.
+- **Adapter Enhancements**: Added `send_transaction` and `get_block` methods to `EthAdapter` for improved low-level control.
+- **Factory Wait Option**: Added `wait_for_deployment` parameter to `deploy_safe` and `deploy_safe_v1_4_1` to wait for transaction confirmation.
+
+## [0.0.12] - 2025-12-23
+
+### Added
+- **Gas Estimation**: Added `estimate_transaction_gas` and `estimate_safe_transaction_gas` methods to `Safe` class.
+- **Gas Control**: Added `gas` parameter to `execute_transaction` for manual gas limit specification.
+- **Receipt Waiting**: Added `wait_for_receipt` parameter to `execute_transaction` for blocking execution.
+- **Improved Owner Management**: Added validation to prevent adding existing owners or removing non-owners.
+
 ## [0.0.11] - 2025-12-23
 
 ### Added

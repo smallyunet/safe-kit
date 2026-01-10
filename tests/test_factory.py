@@ -88,3 +88,35 @@ def test_deploy_safe_v1_4_1(factory, mock_proxy_factory, mock_safe_singleton):
     mock_proxy_factory.functions.createChainSpecificProxyWithNonce.assert_called_with(
         _singleton="0xSingleton", initializer=b"initializer", saltNonce=0
     )
+
+
+def test_deploy_safe_wait_for_deployment(
+    factory, mock_proxy_factory, mock_safe_singleton, mock_adapter
+):
+    mock_safe_singleton.encodeABI.return_value = b"initializer"
+    mock_proxy_factory.functions.createProxyWithNonce.return_value.call.return_value = (
+        "0xPredictedSafe"
+    )
+    mock_proxy_factory.functions.createProxyWithNonce.return_value.transact \
+        .return_value = b"tx_hash"
+
+    config = SafeAccountConfig(owners=["0xOwner1"], threshold=1)
+    safe = factory.deploy_safe(config, wait_for_deployment=True)
+
+    assert safe.get_address() == "0xPredictedSafe"
+    mock_adapter.wait_for_transaction_receipt.assert_called_once_with("74785f68617368")
+
+
+def test_deploy_safe_v1_4_1_wait_for_deployment(
+    factory, mock_proxy_factory, mock_safe_singleton, mock_adapter
+):
+    mock_safe_singleton.encodeABI.return_value = b"initializer"
+    chain_specific_func = mock_proxy_factory.functions.createChainSpecificProxyWithNonce
+    chain_specific_func.return_value.call.return_value = "0xPredictedSafe"
+    chain_specific_func.return_value.transact.return_value = b"tx_hash"
+
+    config = SafeAccountConfig(owners=["0xOwner1"], threshold=1)
+    safe = factory.deploy_safe_v1_4_1(config, wait_for_deployment=True)
+
+    assert safe.get_address() == "0xPredictedSafe"
+    mock_adapter.wait_for_transaction_receipt.assert_called_once_with("74785f68617368")
