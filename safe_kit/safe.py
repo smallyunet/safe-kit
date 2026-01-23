@@ -1,8 +1,9 @@
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from hexbytes import HexBytes
 
 from safe_kit.adapter import EthAdapter
+from safe_kit.cache import SafeCache
 from safe_kit.contract_types import (
     SafeApproveHashParams,
     SafeExecTransactionParams,
@@ -18,6 +19,9 @@ from safe_kit.managers import (
     TokenManagerMixin,
 )
 from safe_kit.types import SafeTransaction, SafeTransactionData
+
+if TYPE_CHECKING:
+    from safe_kit.builder import TransactionBuilder
 
 EIP1271_MAGIC_VALUE = "0x1626ba7e"
 
@@ -41,7 +45,12 @@ class Safe(
     """
 
     def __init__(
-        self, eth_adapter: EthAdapter, safe_address: str, chain_id: int | None = None
+        self,
+        eth_adapter: EthAdapter,
+        safe_address: str,
+        chain_id: int | None = None,
+        enable_cache: bool = False,
+        cache_ttl: int = 60,
     ):
         self.eth_adapter = eth_adapter
         self.safe_address = self.eth_adapter.to_checksum_address(safe_address)
@@ -51,6 +60,8 @@ class Safe(
 
         self.contract = self.eth_adapter.get_safe_contract(self.safe_address)
         self.chain_id = chain_id
+        self.enable_cache = enable_cache
+        self._cache = SafeCache(ttl=cache_ttl) if enable_cache else None
 
         if self.chain_id is not None:
             adapter_chain_id = self.eth_adapter.get_chain_id()
@@ -136,19 +147,49 @@ class Safe(
         """
         Returns the current nonce of the Safe.
         """
-        return cast(int, self.contract.functions.nonce().call())
+        if self._cache:
+            cached: int | None = self._cache.get("nonce")
+            if cached is not None:
+                return cached
+
+        nonce = cast(int, self.contract.functions.nonce().call())
+
+        if self._cache:
+            self._cache.set("nonce", nonce)
+
+        return nonce
 
     def get_threshold(self) -> int:
         """
         Returns the threshold of the Safe.
         """
-        return cast(int, self.contract.functions.getThreshold().call())
+        if self._cache:
+            cached: int | None = self._cache.get("threshold")
+            if cached is not None:
+                return cached
+
+        threshold = cast(int, self.contract.functions.getThreshold().call())
+
+        if self._cache:
+            self._cache.set("threshold", threshold)
+
+        return threshold
 
     def get_owners(self) -> list[str]:
         """
         Returns the owners of the Safe.
         """
-        return cast(list[str], self.contract.functions.getOwners().call())
+        if self._cache:
+            cached: list[str] | None = self._cache.get("owners")
+            if cached is not None:
+                return cached
+
+        owners = cast(list[str], self.contract.functions.getOwners().call())
+
+        if self._cache:
+            self._cache.set("owners", owners)
+
+        return owners
 
     def is_owner(self, address: str) -> bool:
         """
@@ -167,6 +208,62 @@ class Safe(
             transaction_data.nonce = self.get_nonce()
 
         return SafeTransaction(data=transaction_data)
+
+    def tx(self) -> "TransactionBuilder":
+        """
+        Creates a new TransactionBuilder for fluent transaction creation.
+
+        Returns:
+            A TransactionBuilder instance
+
+        Example:
+            tx = safe.tx() \\
+                .send_eth("0x123...", 1000000000000000000) \\
+                .send_erc20("0xToken...", "0x456...", 100) \\
+                .build()
+        """
+        from safe_kit.builder import TransactionBuilder
+
+        return TransactionBuilder(self)
+
+    def create_batch_transaction(
+        self,
+        transactions: list[SafeTransactionData],
+        multisend_address: str = "0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761",
+    ) -> SafeTransaction:
+        """
+        Creates a batched Safe transaction using MultiSend.
+
+        This is a convenience method that automatically encodes multiple transactions
+        into a single MultiSend call, eliminating the need to manually import and use
+        the MultiSend class.
+
+        Args:
+            transactions: A list of SafeTransactionData objects to batch together
+            multisend_address: The address of the MultiSend contract
+                (default: canonical MultiSend v1.3.0 address)
+
+        Returns:
+            A SafeTransaction containing the batched transactions
+
+        Example:
+            tx1 = SafeTransactionData(to="0x123...", value=1000000, data="0x")
+            tx2 = SafeTransactionData(to="0x456...", value=2000000, data="0x")
+            batch_tx = safe.create_batch_transaction([tx1, tx2])
+        """
+        from safe_kit.multisend import MultiSend
+
+        encoded_data = MultiSend.encode_transactions(transactions)
+        multisend_data = "0x8d80ff0a" + encoded_data.hex()
+
+        batch_tx_data = SafeTransactionData(
+            to=multisend_address,
+            value=0,
+            data=multisend_data,
+            operation=1,  # DelegateCall
+        )
+
+        return self.create_transaction(batch_tx_data)
 
     def sign_transaction(
         self, safe_transaction: SafeTransaction, method: str = "eth_sign_typed_data"
@@ -469,3 +566,72 @@ class Safe(
             return HexBytes(result) == HexBytes(EIP1271_MAGIC_VALUE)
         except Exception:
             return False
+
+    def clear_cache(self) -> None:
+        """
+        Clears the Safe info cache.
+        """
+        if self._cache:
+            self._cache.clear()
+
+    def invalidate_cache(self, key: str) -> None:
+        """
+        Invalidates a specific cache entry.
+
+        Args:
+            key: The cache key to invalidate ("nonce", "threshold", or "owners")
+        """
+        if self._cache:
+            self._cache.invalidate(key)
+
+    def get_signature_count(self, safe_transaction: SafeTransaction) -> int:
+        """
+        Returns the number of signatures on a Safe transaction.
+
+        Args:
+            safe_transaction: The Safe transaction to check
+
+        Returns:
+            The number of signatures
+        """
+        return len(safe_transaction.signatures)
+
+    def has_enough_signatures(self, safe_transaction: SafeTransaction) -> bool:
+        """
+        Checks if a Safe transaction has enough signatures to be executed.
+
+        Args:
+            safe_transaction: The Safe transaction to check
+
+        Returns:
+            True if the transaction has enough signatures, False otherwise
+        """
+        required = self.get_threshold()
+        provided = self.get_signature_count(safe_transaction)
+        return provided >= required
+
+    def get_missing_signatures(self, safe_transaction: SafeTransaction) -> int:
+        """
+        Returns the number of missing signatures for a Safe transaction.
+
+        Args:
+            safe_transaction: The Safe transaction to check
+
+        Returns:
+            The number of missing signatures (0 if enough signatures are present)
+        """
+        required = self.get_threshold()
+        provided = self.get_signature_count(safe_transaction)
+        return max(0, required - provided)
+
+    def get_signers(self, safe_transaction: SafeTransaction) -> list[str]:
+        """
+        Returns the list of addresses that have signed a Safe transaction.
+
+        Args:
+            safe_transaction: The Safe transaction to check
+
+        Returns:
+            A list of signer addresses
+        """
+        return sorted(safe_transaction.signatures.keys())

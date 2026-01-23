@@ -52,7 +52,46 @@ print(f"Transaction executed: {tx_hash}")
 
 ## Batching Transactions (MultiSend)
 
-You can batch multiple transactions into a single on-chain transaction using `MultiSend`.
+### Simple Batch Helper
+
+You can easily batch multiple transactions using the convenience method:
+
+```python
+from safe_kit.types import SafeTransactionData
+
+# Define multiple transactions
+tx1 = SafeTransactionData(to="0xRecipient1", value=100, data="0x")
+tx2 = SafeTransactionData(to="0xRecipient2", value=200, data="0x")
+
+# Create a batched transaction (automatically uses MultiSend)
+batch_tx = safe.create_batch_transaction([tx1, tx2])
+
+# Sign and execute as usual
+signed_tx = safe.sign_transaction(batch_tx)
+tx_hash = safe.execute_transaction(signed_tx)
+```
+
+### Transaction Builder Pattern (New in v0.0.14)
+
+For more complex scenarios, use the fluent TransactionBuilder API:
+
+```python
+# Build a complex batch transaction with a fluent API
+tx = safe.tx() \
+    .send_eth("0xRecipient1", 1000000000000000000) \
+    .send_erc20("0xTokenAddress", "0xRecipient2", 100) \
+    .send_erc721("0xNFTAddress", "0xRecipient3", token_id=42) \
+    .call("0xContractAddress", "0x12345678", value=0) \
+    .build()
+
+# Sign and execute
+signed_tx = safe.sign_transaction(tx)
+tx_hash = safe.execute_transaction(signed_tx)
+```
+
+### Manual MultiSend (Advanced)
+
+If you need more control, you can still use MultiSend directly:
 
 ```python
 from safe_kit.types import SafeTransactionData
@@ -69,6 +108,52 @@ multi_send_tx = safe.create_multi_send_transaction([tx1, tx2], multi_send_addres
 # Sign and execute as usual
 signed_tx = safe.sign_transaction(multi_send_tx)
 tx_hash = safe.execute_transaction(signed_tx)
+```
+
+## Transaction Status Checking (New in v0.0.14)
+
+Check the status of transactions before execution:
+
+```python
+# Check if a transaction has enough signatures
+if safe.has_enough_signatures(safe_tx):
+    print("Ready to execute!")
+else:
+    missing = safe.get_missing_signatures(safe_tx)
+    print(f"Need {missing} more signatures")
+
+# Get signature count and signers
+sig_count = safe.get_signature_count(safe_tx)
+signers = safe.get_signers(safe_tx)
+print(f"Transaction has {sig_count} signatures from: {signers}")
+```
+
+## Performance Optimization with Caching (New in v0.0.14)
+
+Enable caching to reduce RPC calls for frequently accessed Safe properties:
+
+```python
+# Initialize Safe with caching enabled
+safe = Safe(
+    eth_adapter=adapter, 
+    safe_address="0xSafeAddress",
+    enable_cache=True,
+    cache_ttl=60  # Cache for 60 seconds
+)
+
+# These calls will use cached values within the TTL period
+owners = safe.get_owners()  # Makes RPC call
+threshold = safe.get_threshold()  # Makes RPC call
+nonce = safe.get_nonce()  # Makes RPC call
+
+# Subsequent calls within 60 seconds use cache
+owners2 = safe.get_owners()  # Uses cache, no RPC call
+
+# Manually clear cache when needed
+safe.clear_cache()
+
+# Or invalidate specific entries
+safe.invalidate_cache("owners")
 ```
 
 ## Using Safe Transaction Service

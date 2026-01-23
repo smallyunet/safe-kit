@@ -20,6 +20,68 @@ class SafeServiceError(SafeKitError):
         super().__init__(f"Status {status_code}: {message}" if status_code else message)
 
 
+class InsufficientSignaturesError(SafeKitError):
+    """Exception raised when a transaction doesn't have enough signatures"""
+
+    def __init__(self, required: int, provided: int):
+        self.required = required
+        self.provided = provided
+        super().__init__(
+            f"Insufficient signatures: required {required}, provided {provided}"
+        )
+
+
+class InvalidThresholdError(SafeKitError):
+    """Exception raised when an invalid threshold is specified"""
+
+    def __init__(self, threshold: int, owner_count: int):
+        self.threshold = threshold
+        self.owner_count = owner_count
+        super().__init__(
+            f"Invalid threshold: {threshold} (must be between 1 and {owner_count})"
+        )
+
+
+class OwnerNotFoundError(SafeKitError):
+    """Exception raised when an owner is not found in the Safe"""
+
+    def __init__(self, owner_address: str):
+        self.owner_address = owner_address
+        super().__init__(f"Owner not found: {owner_address}")
+
+
+class OwnerAlreadyExistsError(SafeKitError):
+    """Exception raised when trying to add an owner that already exists"""
+
+    def __init__(self, owner_address: str):
+        self.owner_address = owner_address
+        super().__init__(f"Owner already exists: {owner_address}")
+
+
+class ModuleNotEnabledError(SafeKitError):
+    """Exception raised when a module is not enabled"""
+
+    def __init__(self, module_address: str):
+        self.module_address = module_address
+        super().__init__(f"Module not enabled: {module_address}")
+
+
+class InvalidAddressError(SafeKitError):
+    """Exception raised when an invalid Ethereum address is provided"""
+
+    def __init__(self, address: str):
+        self.address = address
+        super().__init__(f"Invalid Ethereum address: {address}")
+
+
+class TransactionNotFoundError(SafeKitError):
+    """Exception raised when a transaction is not found"""
+
+    def __init__(self, tx_hash: str):
+        self.tx_hash = tx_hash
+        super().__init__(f"Transaction not found: {tx_hash}")
+
+
 SAFE_ERRORS = {
     "GS000": "Could not finish initialization",
     "GS001": "Threshold needs to be defined",

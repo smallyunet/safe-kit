@@ -19,6 +19,7 @@ Focus on implementing core functionalities and ensuring the library is usable fo
 - **v0.0.11** (Released): Pre-validated signatures, transaction simulation, and signature helper.
 - **v0.0.12** (Released): Gas estimation, gas control for execution, and improved owner management validation.
 - **v0.0.13** (Released): Chain ID handling (EIP-155), convenience initialization, and factory wait option.
+- **v0.0.14** (Released): Transaction builder pattern, batch transaction helpers, enhanced error handling, transaction status utilities, and Safe info caching.
 
 ### v0.1.x (Beta)
 Focus on stability, comprehensive testing, and developer experience improvements.

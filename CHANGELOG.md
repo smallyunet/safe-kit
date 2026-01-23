@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.14] - 2026-01-23
+
+### Added
+- **Transaction Builder Pattern**: Added `TransactionBuilder` class with fluent API for creating complex transactions (`safe.tx().send_eth(...).send_erc20(...).build()`).
+- **Batch Transaction Helper**: Added `create_batch_transaction` method to `Safe` class for simplified MultiSend transaction creation.
+- **Enhanced Error Handling**: Added specific exception classes (`InsufficientSignaturesError`, `InvalidThresholdError`, `OwnerNotFoundError`, `OwnerAlreadyExistsError`, `ModuleNotEnabledError`, `InvalidAddressError`, `TransactionNotFoundError`) for better error messages.
+- **Transaction Status Utilities**: Added methods to check transaction status:
+  - `get_signature_count`: Get the number of signatures on a transaction
+  - `has_enough_signatures`: Check if a transaction has enough signatures
+  - `get_missing_signatures`: Get the number of missing signatures
+  - `get_signers`: Get the list of addresses that signed a transaction
+- **Safe Info Caching**: Added optional caching mechanism for Safe properties (owners, threshold, nonce) to reduce RPC calls:
+  - `enable_cache` parameter in `Safe.__init__` to enable caching
+  - `cache_ttl` parameter to configure cache expiration time
+  - `clear_cache` method to clear all cached data
+  - `invalidate_cache` method to invalidate specific cache entries
+- **SafeCache Class**: Added standalone cache implementation for time-based value caching.
+
+### Changed
+- Enhanced `Safe` class constructor with `enable_cache` and `cache_ttl` parameters.
+- Improved error handling with more specific exception types.
+
 ## [0.0.13] - 2025-01-10
 
 ### Added
